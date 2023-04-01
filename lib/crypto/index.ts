@@ -10,7 +10,7 @@ if (!quickNodeUrl) {
 
 export async function getAdressBalance(address: string): Promise<bigint> {
   const provider = new ethers.JsonRpcProvider(quickNodeUrl)
-  return await provider.getBalance(address)
+  return await provider.getBalance(address, 'latest')
 }
 
 export function buildPrivateKey() {
