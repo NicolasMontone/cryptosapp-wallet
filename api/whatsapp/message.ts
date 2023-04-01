@@ -55,12 +55,9 @@ const handler: VercelApiHandler = async (
       } = data
       const sendBasicTransactions = async () => {
         await sendSimpleButtonsMessage(recipientPhone, 'Qué querés hacer?', [
-          { title: 'Recibir dinero ⬇️', id: 'receive_money' },
+          { title: 'Consultar direccion', id: 'check_address' },
           { title: 'Enviar dinero 💸', id: 'send_money' },
           { title: 'Consultar saldo 🔎', id: 'check_balance' },
-        ])
-        await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
-          { title: 'Consultar direccion', id: 'check_address' },
         ])
       }
 
@@ -130,13 +127,13 @@ const handler: VercelApiHandler = async (
           }
 
           switch (button_id) {
-            case 'receive_money':
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                'Recibiendo dinero...',
-              )
-              break
             case 'send_money': {
+              // const tx = await sendUsdtFromWallet({
+              //   tokenAmount: 0.000001,
+              //   toAddress: '0x060AE8C945bb01fa7e2833aDD65E00C87b2F49c1',
+              //   privateKey: privateKey,
+              // })
+
               const { id } = user
 
               await makePaymentRequest({
