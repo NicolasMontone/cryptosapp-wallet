@@ -1,4 +1,4 @@
-const salt = process.env.SALT
+const salt = process.env.SALT as string
 
 if (!salt) {
   throw new Error('Missing salt')
@@ -16,7 +16,7 @@ export function crypt(text: string): string {
   const byteHex = (n: string) => ('0' + Number(n).toString(16)).substr(-2)
   const applySaltToChar = (code: number): number =>
     // note salt is already defined typescript is not inferring the type correctly
-    textToChars(salt!).reduce((a, b) => a ^ b, code)
+    textToChars(salt).reduce((a, b) => a ^ b, code)
 
   return (
     text
@@ -39,12 +39,10 @@ export function decrypt(encoded: string): string {
   const textToChars = (text: string) => text.split('').map((c: string) => c.charCodeAt(0))
   const applySaltToChar = (code: string) =>
     // note salt is already defined typescript is not inferring the type correctly
-    textToChars(salt!).reduce((a, b) => a ^ b, code)
-    // @ts-ignore
-  return encoded?
-    .match(/.{1,2}/g)
-    .map((hex) => parseInt(hex, 16))
-    .map(applySaltToChar)
+    textToChars(salt).reduce((a, b) => a ^ b, code)
+
+  return encoded?.match(/.{1,2}/g)
+    .map((hex) => parseInt(hex, 16)).map(applySaltToChar)
     .map((charCode) => String.fromCharCode(charCode))
     .join('')
 }
