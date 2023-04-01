@@ -48,19 +48,19 @@ const handler: VercelApiHandler = async (
           if (isRegistered) {
             await sendMessageToPhoneNumber(
               recipientPhone,
-              `Hola de nuevo${recipientName ? ` ${recipientName}` : ''}!`,
+              `Hola de nuevo${recipientName ? ` ${recipientName}` : ''}! 👋`,
             )
             await sendSimpleButtonsMessage(
               recipientPhone,
-              '¿Qué deseas hacer?',
+              'Qué querés hacer?',
               [
-                { title: 'Recibir dinero', id: 'receive_money' },
-                { title: 'Enviar dinero', id: 'send_money' },
-                { title: 'Consultar saldo', id: 'check_balance' },
+                { title: 'Recibir dinero 🤑', id: 'receive_money' },
+                { title: 'Enviar dinero 💸', id: 'send_money' },
+                { title: 'Consultar saldo 🔎', id: 'check_balance' },
               ],
             )
             await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
-              { title: 'Consultar direccion', id: 'check_address' },
+              { title: 'Consultar direccion 👇', id: 'check_address' },
             ])
           } else {
             const welcomeMessage = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
