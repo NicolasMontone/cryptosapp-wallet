@@ -15,14 +15,16 @@ type WeiAmount = string
 
 type BSCScanAccountResponse = BSCScanResponse<WeiAmount>
 
-export async function getAddressBalance(address: string): Promise<WeiAmount> {
-  const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&&contractaddress=0x55d398326f99059ff775485246999027b3197955&address=${address}&apikey=${process.env.BSCSCAN_API_KEY}}`
+export async function getAddressUSDTBalance(
+  address: string,
+): Promise<WeiAmount> {
+  const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=0x55d398326f99059ff775485246999027b3197955&address=${address}&apikey=`
 
   const {
     data: { result: weiAmount },
   } = await axios.get<BSCScanAccountResponse>(url)
 
-  return `${weiAmount}`
+  return `${Number(weiAmount) / 10 ** 9} USDT`
 }
 
 export function buildPrivateKey(): string {
