@@ -1,6 +1,7 @@
 import { supabase } from '../supabase'
 
 import { getAddressFromPrivateKey, buildPrivateKey } from '../crypto'
+import { crypt } from '../crypto/utils'
 
 export async function isUserRegistered(
   recipientPhone: string,
@@ -37,7 +38,7 @@ export async function createUser(
   const user = await supabase.from('users').insert({
     phone_number: recipientPhone,
     name: recipientName,
-    private_key: privateKey,
+    private_key: crypt(privateKey),
   })
 
   if (user.error) {
