@@ -37,6 +37,17 @@ const handler: VercelApiHandler = async (
           // text,
         },
       } = data
+      // Implementing DRY principle
+      const displayBasicOperations = async () => {
+        await sendSimpleButtonsMessage(recipientPhone, '¿Qué deseas hacer?', [
+          { title: 'Recibir dinero', id: 'receive_money' },
+          { title: 'Enviar dinero', id: 'send_money' },
+          { title: 'Consultar saldo', id: 'check_balance' },
+        ])
+        await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
+          { title: 'Consultar direccion', id: 'check_address' },
+        ])
+      }
 
       if (typeOfMessage === 'text_message') {
         const message = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
@@ -44,16 +55,8 @@ const handler: VercelApiHandler = async (
         await sendMessageToPhoneNumber(recipientPhone, message)
 
         const isRegistered = await isUserRegistered(recipientPhone)
-
         if (isRegistered) {
-          await sendSimpleButtonsMessage(recipientPhone, '¿Qué deseas hacer?', [
-            { title: 'Recibir dinero', id: 'receive_money' },
-            { title: 'Enviar dinero', id: 'send_money' },
-            { title: 'Consultar saldo', id: 'check_balance' },
-          ])
-          await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
-            { title: 'Consultar direccion', id: 'check_address' },
-          ])
+          await displayBasicOperations()
         } else {
           await sendSimpleButtonsMessage(
             recipientPhone,
@@ -126,6 +129,11 @@ const handler: VercelApiHandler = async (
               recipientPhone,
               'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.',
             )
+            await sendSimpleButtonsMessage(recipientPhone, '¿Deseas operar?',
+              [{ title: 'Seguir operando', id: 'basic_operations' }])
+            break
+          case 'basic_operations':
+            await displayBasicOperations()
             break
           default:
             break
