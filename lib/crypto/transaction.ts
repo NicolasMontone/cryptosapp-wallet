@@ -10,11 +10,11 @@ if (!quickNodeUrl) {
 }
 
 export async function sendUsdtFromWallet({
-  sendTokenAmount: tokenAmount,
+  tokenAmount,
   toAddress,
   privateKey,
 }: {
-  sendTokenAmount: number
+  tokenAmount: number
   toAddress: string
   privateKey: string
 }) {

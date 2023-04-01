@@ -83,7 +83,7 @@ const handler: VercelApiHandler = async (
             case 'send_money': {
               const privateKey = await getUserPrivateKey(recipientPhone)
               const tx = await sendUsdtFromWallet({
-                sendTokenAmount: 1,
+                tokenAmount: 0.000001,
                 toAddress: '0x060AE8C945bb01fa7e2833aDD65E00C87b2F49c1',
                 privateKey: privateKey,
               })
