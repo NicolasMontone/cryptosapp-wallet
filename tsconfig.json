@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "rootDirs": ["./src", "./migrations"],
+    "outDir": "./dist",
+    "module": "commonjs",
+    "lib": ["es2019"],
+    "target": "es2017",
+    "sourceMap": true,
+    "strict": true,
+    "pretty": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true
+  },
+  "include": ["api/**/*.ts", "lib/*"],
+  "exclude": ["**/node_modules", "**/.*/", "test"]
+}
