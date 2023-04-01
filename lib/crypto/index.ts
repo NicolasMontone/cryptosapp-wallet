@@ -16,7 +16,7 @@ type WeiAmount = string
 type BSCScanAccountResponse = BSCScanResponse<WeiAmount>
 
 export async function getAddressBalance(address: string): Promise<WeiAmount> {
-  const url = `https://api.bscscan.com/api?module=account&action=balance&address=${address}&apikey=${process.env.BSCSCAN_API_KEY}}`
+  const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&&contractaddress=0x55d398326f99059ff775485246999027b3197955address=${address}&apikey=${process.env.BSCSCAN_API_KEY}}`
 
   const {
     data: { result: weiAmount },
