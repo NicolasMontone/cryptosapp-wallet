@@ -11,7 +11,11 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-import { getUserAddress, getUserFromPhoneNumber, getUserPrivateKey } from '../../lib/user'
+import {
+  getUserAddress,
+  getUserFromPhoneNumber,
+  getUserPrivateKey,
+} from '../../lib/user'
 
 import { getAccountBalances } from '../../lib/crypto'
 
@@ -57,7 +61,7 @@ const handler: VercelApiHandler = async (
           { title: 'Consultar saldo 🔎', id: 'check_balance' },
         ])
         await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
-          { title: 'Consultar direccion', id: 'check_address' },
+          { title: 'Consultar dirección', id: 'check_address' },
         ])
       }
 
@@ -155,11 +159,11 @@ const handler: VercelApiHandler = async (
               )
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `BNB: ${bnbBalance} BNB`,
+                `${bnbBalance} BNB`,
               )
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `USDT: ${usdtBalance} USDT`,
+                `${usdtBalance} USDT`,
               )
 
               break
