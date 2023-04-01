@@ -73,7 +73,6 @@ const handler: VercelApiHandler = async (
 
           if (user) {
             if (text && (await isUserAwaitingRemitentInput(user.id))) {
-              sendCancelSendMoneyFlowMessage()
               const remitent: PhoneNumber | Address = text.body
               try {
                 const remitentSuccess = await addRemitentToPaymentRequest({
@@ -91,16 +90,16 @@ const handler: VercelApiHandler = async (
                   `El valor no es válido, fijate que cumpla con el formato de dirección o que el número de teléfono tenga cuenta con Cryptosapp`,
                 )
               }
+              sendCancelSendMoneyFlowMessage()
               return
             }
             if (text && (await isUserAwaitingAmountInput(user.id))) {
-              sendCancelSendMoneyFlowMessage()
               const amount = Number(text.body)
 
               addAmountToPaymentRequest({ userId: user.id, amount })
 
               await sendMessageToPhoneNumber(recipientPhone, `Pago exitoso.`)
-
+              sendCancelSendMoneyFlowMessage()
               return
             }
 
