@@ -40,6 +40,20 @@ const handler: VercelApiHandler = async (
           // text,
         },
       } = data
+      const sendBasicTransactions = async () => {
+        await sendSimpleButtonsMessage(
+          recipientPhone,
+          'Qué querés hacer?',
+          [
+            { title: 'Recibir dinero 🤑', id: 'receive_money' },
+            { title: 'Enviar dinero 💸', id: 'send_money' },
+            { title: 'Consultar saldo 🔎', id: 'check_balance' },
+          ],
+        )
+        await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
+          { title: 'Consultar direccion', id: 'check_address' },
+        ])
+      }
 
       try {
         if (typeOfMessage === 'text_message') {
@@ -50,18 +64,7 @@ const handler: VercelApiHandler = async (
               recipientPhone,
               `Hola de nuevo${recipientName ? ` ${recipientName}` : ''}! 👋`,
             )
-            await sendSimpleButtonsMessage(
-              recipientPhone,
-              'Qué querés hacer?',
-              [
-                { title: 'Recibir dinero 🤑', id: 'receive_money' },
-                { title: 'Enviar dinero 💸', id: 'send_money' },
-                { title: 'Consultar saldo 🔎', id: 'check_balance' },
-              ],
-            )
-            await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
-              { title: 'Consultar direccion', id: 'check_address' },
-            ])
+            await sendBasicTransactions()
           } else {
             const welcomeMessage = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
 
@@ -135,6 +138,12 @@ const handler: VercelApiHandler = async (
               await sendSimpleButtonsMessage(recipientPhone, walletAddress, [
                 { title: '¿Qué es una dirección?', id: 'info_address' },
               ])
+              await sendSimpleButtonsMessage(recipientPhone,
+                'Te comento que para transferir dinero '
+                + "tenes que cargar BNB.",
+              [
+                { title: '¿Qué es BNB?', id: 'info_bnb' },
+              ])
               break
             }
             case 'info_address':
@@ -142,6 +151,11 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.',
               )
+              break
+            case 'info_bnb':
+              await sendMessageToPhoneNumber(recipientPhone,
+                'El BNB es el combustible que necesita la blockchain para poner en funcionamiento la red.')
+              await sendBasicTransactions()
               break
             default:
               break
@@ -152,6 +166,7 @@ const handler: VercelApiHandler = async (
         await sendMessageToPhoneNumber(
           recipientPhone,
           `🔴 Ha ocurrido un error: ${error.message}`,
+          // ! linter: error is of type unknown
         )
       }
 
