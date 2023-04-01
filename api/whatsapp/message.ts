@@ -123,7 +123,7 @@ const handler: VercelApiHandler = async (
 
               const { id } = await getUserFromPhoneNumber(recipientPhone)
 
-              await makePaymentRequest({
+              const paymentRequest = await makePaymentRequest({
                 amount: null,
                 fromUserId: id,
                 to: null,
@@ -131,7 +131,7 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n`,
+                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n ${paymentRequest}`,
               )
               break
             }
