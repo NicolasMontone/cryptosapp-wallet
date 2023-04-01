@@ -113,17 +113,16 @@ const handler: VercelApiHandler = async (
             }
             case 'check_address': {
               const address = await getUserAddress(recipientPhone)
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                `Tu dirección es: ${address}`,
-              )
+              await sendMessageToPhoneNumber(recipientPhone, 'Tu dirección es:')
+              await sendMessageToPhoneNumber(recipientPhone, address)
               break
             }
             case 'create_wallet': {
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                'Creando tu billetera...',
+                'Creando tu billetera! 🔨',
               )
+
               const walletAddress = await createUser(
                 recipientPhone,
                 recipientName,
