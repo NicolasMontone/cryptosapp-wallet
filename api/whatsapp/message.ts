@@ -11,7 +11,7 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-import { isUserRegistered } from '../../lib/user'
+import { createUser, isUserRegistered } from '../../lib/user'
 
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
@@ -80,10 +80,10 @@ const handler: VercelApiHandler = async (
             await sendMessageToPhoneNumber(recipientPhone, `Tu balance es ...`)
             break
           case 'create_wallet':
-            // do something
+            await createUser(recipientPhone, recipientName)
             await sendMessageToPhoneNumber(
               recipientPhone,
-              `Tu billetera ha sido creada. Tu saldo es ...`,
+              'Tu billetera ha sido creada! 🚀✨',
             )
             break
           default:
