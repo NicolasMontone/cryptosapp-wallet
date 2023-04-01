@@ -35,6 +35,7 @@ const handler: VercelApiHandler = async (
     }
   } else if (req.method === 'POST') {
     try {
+      // send request to other lambda function but not await it to responde immediately to whatsapp with a 200 status code
       axios.post(
         `https://${process.env.VERCEL_PROD_URL}/api/whatsapp/message`,
         req.body,
