@@ -77,10 +77,12 @@ export async function getUserFromPhoneNumber(
     await createUser(recipientPhone)
   }
 
-  const [{ created_at, id, name, phone_number, private_key }] = (await supabase
+  const {
+    data: [{ created_at, id, name, phone_number, private_key }],
+  } = (await supabase
     .from('users')
     .select('*')
-    .eq('phone_number', recipientPhone)) as unknown as UserResponse[]
+    .eq('phone_number', recipientPhone)) as unknown as { data: UserResponse[] }
 
   return {
     createdAt: created_at,
