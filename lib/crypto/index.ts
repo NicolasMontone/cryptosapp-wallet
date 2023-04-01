@@ -28,7 +28,7 @@ export async function getAddressBalance(address: string): Promise<WeiAmount> {
   return weiAmount
 }
 
-export function buildPrivateKey() {
+export function buildPrivateKey(): string {
   const id = crypto.randomBytes(32).toString('hex')
   const privateKey = `0x${id}`
   return privateKey
