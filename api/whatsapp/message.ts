@@ -125,12 +125,6 @@ const handler: VercelApiHandler = async (
           }
 
           switch (button_id) {
-            case 'receive_money':
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                'Recibiendo dinero...',
-              )
-              break
             case 'send_money': {
               // const tx = await sendUsdtFromWallet({
               //   tokenAmount: 0.000001,
