@@ -24,7 +24,7 @@ export async function getAddressUSDTBalance(
     data: { result: weiAmount },
   } = await axios.get<BSCScanAccountResponse>(url)
 
-  return `${Number(weiAmount) / 10 ** 9} USDT`
+  return `${Number(weiAmount) / 10 ** 18} USDT`
 }
 
 export function buildPrivateKey(): string {
