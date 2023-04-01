@@ -55,11 +55,6 @@ const handler: VercelApiHandler = async (
           text,
         },
       } = data
-      const sendCancelSendMoneyFlowMessage = async () => {
-        await sendSimpleButtonsMessage(recipientPhone, 'Querés cancelar?', [
-          { title: 'Si', id: 'cancel_send_money' },
-        ])
-      }
       const sendMenuButtons = async () => {
         await sendSimpleButtonsMessage(recipientPhone, 'Qué querés hacer?', [
           { title: 'Consultar dirección', id: 'check_address' },
@@ -67,7 +62,6 @@ const handler: VercelApiHandler = async (
           { title: 'Consultar saldo 🔎', id: 'check_balance' },
         ])
       }
-
       try {
         if (typeOfMessage === 'text_message') {
           const user = await getUserFromPhoneNumber(recipientPhone)
@@ -80,18 +74,20 @@ const handler: VercelApiHandler = async (
                   userId: user.id,
                   remitent,
                 })
-                await sendMessageToPhoneNumber(
+                await sendSimpleButtonsMessage(
                   recipientPhone,
                   `Cuánto dinero deseas enviar a ${remitentSuccess}?`,
+                  [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
                 )
                 return
               } catch {
-                await sendMessageToPhoneNumber(
+                await sendSimpleButtonsMessage(
                   recipientPhone,
                   `El valor no es válido, fijate que cumpla con el formato de dirección o que el número de teléfono tenga cuenta con Cryptosapp`,
+                  [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
                 )
               }
-              sendCancelSendMoneyFlowMessage()
+
               return
             }
             if (text && (await isUserAwaitingAmountInput(user.id))) {
@@ -105,8 +101,7 @@ const handler: VercelApiHandler = async (
 
               addAmountToPaymentRequest({ userId: user.id, amount })
 
-              await sendMessageToPhoneNumber(recipientPhone, `Pago exitoso.`)
-              sendCancelSendMoneyFlowMessage()
+              await sendMessageToPhoneNumber(recipientPhone, 'Pago exitoso! 🎉')
               return
             }
 
