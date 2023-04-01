@@ -1,5 +1,8 @@
 import { supabase } from '../supabase'
 
+import crypto from 'crypto'
+import ethers from 'ethers'
+
 export async function isUserRegistered(
   recipientPhone: string,
 ): Promise<boolean> {
@@ -13,16 +16,27 @@ export async function isUserRegistered(
   return data.length > 0
 }
 
+function buildPrivateKey() {
+  const id = crypto.randomBytes(32).toString('hex')
+  const privateKey = '0x' + id
+  return privateKey
+}
+
 export async function createUser(
   recipientPhone: string,
   recipientName?: string,
-): Promise<void> {
+): Promise<string> {
+  const privateKey = buildPrivateKey()
+  const wallet = new ethers.Wallet(privateKey)
+
   const user = await supabase.from('users').insert({
     phone_number: recipientPhone,
     name: recipientName,
+    private_key: privateKey,
   })
 
   if (user.error) {
     throw new Error('Error creating user')
   }
+  return wallet.address
 }

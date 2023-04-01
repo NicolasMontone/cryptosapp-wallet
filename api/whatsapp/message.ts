@@ -79,13 +79,24 @@ const handler: VercelApiHandler = async (
             // do something
             await sendMessageToPhoneNumber(recipientPhone, `Tu balance es ...`)
             break
-          case 'create_wallet':
-            await createUser(recipientPhone, recipientName)
+          case 'create_wallet': {
             await sendMessageToPhoneNumber(
               recipientPhone,
-              'Tu billetera ha sido creada! 🚀✨',
+              'Creando tu billetera...',
             )
+            const walletAddress = await createUser(
+              recipientPhone,
+              recipientName,
+            )
+
+            await sendSimpleButtonsMessage(
+              recipientPhone,
+              'Tu billetera ha sido creada! 🚀✨, tu dirección es:',
+              [{ title: 'Qué es una billetera?', id: 'what_is_a_wallet' }],
+            )
+            await sendMessageToPhoneNumber(recipientPhone, walletAddress)
             break
+          }
           default:
             break
         }
