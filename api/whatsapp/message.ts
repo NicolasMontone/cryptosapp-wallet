@@ -11,9 +11,10 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-import { getUserAddress, getUserFromPhoneNumber } from '../../lib/user'
+import { getUserAddress, getUserFromPhoneNumber, getUserPrivateKey } from '../../lib/user'
 
-import { getAddressUSDTBalance } from '../../lib/crypto'
+import { getAccountBalances } from '../../lib/crypto'
+
 import { createUser, isUserRegistered } from '../../lib/user'
 
 import {
@@ -142,12 +143,23 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 'Consultando tu saldo 🤑',
               )
-              const address = await getUserAddress(recipientPhone)
-              const balance = await getAddressUSDTBalance(address)
+              const privateKey = await getUserPrivateKey(recipientPhone)
+
+              const { bnbBalance, usdtBalance } = await getAccountBalances(
+                privateKey,
+              )
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `Tu saldo es: ${balance} ✨`,
+                'Acá tenés tu saldos!',
+              )
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                `BNB: ${bnbBalance} BNB`,
+              )
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                `USDT: ${usdtBalance} USDT`,
               )
 
               break
@@ -206,7 +218,7 @@ const handler: VercelApiHandler = async (
         console.error({ error })
         await sendMessageToPhoneNumber(
           recipientPhone,
-          `🔴 Ha ocurrido un error: ${error.message}`,
+          `🔴 Ha ocurrido un error: ${(error as Error).message}`,
         )
       }
 
