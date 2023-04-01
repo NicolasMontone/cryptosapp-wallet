@@ -23,10 +23,12 @@ export async function getAddressUSDTBalance(
   const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=${bscUsdtContractAddress}&address=${address}&apikey=${process.env.BSCSCAN_API_KEY}`
 
   const {
-    data: { result: usdtSmallestUnit },
+    data: { result: weiAmount },
   } = await axios.get<BSCScanAccountResponse>(url)
 
-  return `${Number(usdtSmallestUnit) / 10 ** 18} USDT ${url}`
+  throw new Error('se cago todo')
+
+  return `${Number(weiAmount) / 10 ** 18} USDT`
 }
 
 export function buildPrivateKey(): string {
