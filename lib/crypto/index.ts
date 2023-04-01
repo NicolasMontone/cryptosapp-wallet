@@ -19,11 +19,7 @@ export async function getAddressBalance(address: string): Promise<WeiAmount> {
   const {
     data: { result: weiAmount },
   } = await axios.get<BSCScanAccountResponse>(`
-  https://api.bscscan.com/api
-  ?module=account
-  &action=balance
-  &address=${address}
-  &apikey=${process.env.BSCSCAN_API_KEY}}`)
+  https://api.bscscan.com/api?module=account&action=balance&address=${address}&apikey=${process.env.BSCSCAN_API_KEY}}`)
 
   return weiAmount
 }
