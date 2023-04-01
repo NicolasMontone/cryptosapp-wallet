@@ -94,7 +94,7 @@ const handler: VercelApiHandler = async (
 
     res.status(200).send('ok')
     return
-  } catch (error) {
+  }} catch (error) {
     console.error({ error })
     res.status(500)
     return
