@@ -1,6 +1,6 @@
 import type { VercelApiHandler, VercelResponse } from '@vercel/node'
 
-import { Whatsapp } from '../../lib/whatsapp'
+import { Whatsapp, sendMessageToPhoneNumber } from '../../lib/whatsapp'
 
 import {
   WhatsappNewMessageEventNotificationRequest,
@@ -24,7 +24,7 @@ const handler: VercelApiHandler = async (
 
       const {
         message: {
-          // from: { phone: recipientPhone, name: recipientName },
+          from: { phone: recipientPhone, name: recipientName },
           type: typeOfMessage,
           message_id: messageId,
           // text,
@@ -32,7 +32,8 @@ const handler: VercelApiHandler = async (
       } = data
 
       if (typeOfMessage === 'text_message') {
-        // message
+        const message = `Hey ${recipientName}, thanks for reaching out! We will get back to you shortly.`
+        await sendMessageToPhoneNumber(recipientPhone, message)
       }
 
       if (typeOfMessage === 'simple_button_message') {
