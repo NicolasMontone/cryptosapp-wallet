@@ -79,11 +79,18 @@ export async function getUserFromPhoneNumber(
 
   const {
     data: [{ created_at, id, name, phone_number, private_key }],
+    error,
   } = (await supabase
     .from('users')
     .select('*')
-    .eq('phone_number', recipientPhone)) as unknown as { data: UserResponse[] }
+    .eq('phone_number', recipientPhone)) as unknown as {
+    data: UserResponse[]
+    error: unknown
+  }
 
+  if (error) {
+    throw new Error(`Error getting user from phone number ${error}`)
+  }
   return {
     createdAt: created_at,
     id,
