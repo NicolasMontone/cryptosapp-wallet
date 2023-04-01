@@ -23,7 +23,6 @@ type PaymentRequest = {
   createdAt: string
   fromUserId: string
   to: string
-  addressFrom: string | null
   status: Status
   amount: number | null
 }
@@ -33,7 +32,6 @@ type PaymentRequest = {
 //   created_at: string
 //   from_user_id: string
 //   to: string
-//   address_from: string | null
 //   status: Status
 //   amount: number | null
 // }
@@ -73,9 +71,7 @@ export async function sendUsdtFromWallet({
 }) {
   try {
     const provider = new ethers.JsonRpcProvider(quickNodeUrl)
-
     const wallet = new ethers.Wallet(privateKey, provider)
-
     const walletSigner = wallet.connect(provider)
 
     // general token send
@@ -112,17 +108,14 @@ export async function getUserPaymentRequests(
     throw new Error('Error getting user payment requests')
   }
 
-  return data.map(
-    ({ id, created_at, from_user_id, to, address_from, status, amount }) => ({
-      id,
-      createdAt: created_at,
-      fromUserId: from_user_id,
-      to,
-      addressFrom: address_from,
-      status,
-      amount,
-    }),
-  )
+  return data.map(({ id, created_at, from_user_id, to, status, amount }) => ({
+    id,
+    createdAt: created_at,
+    fromUserId: from_user_id,
+    to,
+    status,
+    amount,
+  }))
 }
 
 export async function isUserAwaitingRemitentInput(userId: string) {

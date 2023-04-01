@@ -83,6 +83,8 @@ const handler: VercelApiHandler = async (
 
               addAmountToPaymentRequest({ userId: user.id, amount })
 
+              await sendMessageToPhoneNumber(recipientPhone, `Pago exitoso`)
+
               return
             }
 
@@ -121,7 +123,7 @@ const handler: VercelApiHandler = async (
 
               const { id } = await getUserFromPhoneNumber(recipientPhone)
 
-              const paymentRequest = await makePaymentRequest({
+              await makePaymentRequest({
                 amount: null,
                 fromUserId: id,
                 to: null,
