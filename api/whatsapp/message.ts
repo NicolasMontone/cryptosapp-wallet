@@ -131,7 +131,9 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n ${paymentRequest}`,
+                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n ${JSON.stringify(
+                  paymentRequest,
+                )}`,
               )
               break
             }
