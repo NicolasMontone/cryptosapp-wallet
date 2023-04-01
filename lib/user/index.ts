@@ -39,8 +39,13 @@ export async function getUserPrivateKey(
     .select('private_key')
     .eq('phone_number', recipientPhone)
 
-  if (error || !data.length) {
-    throw new Error(`Error getting user address, ${JSON.stringify(error)} `)
+  if (error || data.length === 0) {
+    throw new Error(
+      `Error getting user address, ${JSON.stringify({
+        error,
+        recipientPhone,
+      })} `,
+    )
   }
   return data[0].private_key
 }
