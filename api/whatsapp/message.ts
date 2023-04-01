@@ -56,7 +56,7 @@ const handler: VercelApiHandler = async (
               [
                 { title: 'Recibir dinero 🤑', id: 'receive_money' },
                 { title: 'Enviar dinero 💸', id: 'send_money' },
-                { title: 'Consultar saldo 🔎', id: 'check_balance' },
+                { title: 'Consultar saldo', id: 'check_balance' },
               ],
             )
             await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
