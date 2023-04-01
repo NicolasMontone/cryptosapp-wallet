@@ -1,7 +1,7 @@
 import { supabase } from '../supabase'
 
 import crypto from 'crypto'
-import ethers from 'ethers'
+import { ethers } from 'ethers'
 
 export async function isUserRegistered(
   recipientPhone: string,
