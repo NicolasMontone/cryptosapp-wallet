@@ -54,8 +54,8 @@ const handler: VercelApiHandler = async (
         },
       } = data
       const sendBasicTransactions = async () => {
-        await sendSimpleButtonsMessage(recipientPhone, 'Qué querés hacer?', [
-          { title: 'Consultar direccion', id: 'check_address' },
+        await sendSimpleButtonsMessage(recipientPhone, '¿Qué querés hacer?', [
+          { title: 'Consultar dirección', id: 'check_address' },
           { title: 'Enviar dinero 💸', id: 'send_money' },
           { title: 'Consultar saldo 🔎', id: 'check_balance' },
         ])
@@ -90,7 +90,7 @@ const handler: VercelApiHandler = async (
 
               addAmountToPaymentRequest({ userId: user.id, amount })
 
-              await sendMessageToPhoneNumber(recipientPhone, `Pago exitoso`)
+              await sendMessageToPhoneNumber(recipientPhone, `Pago exitoso.`)
 
               return
             }
@@ -101,7 +101,7 @@ const handler: VercelApiHandler = async (
             )
             await sendBasicTransactions()
           } else {
-            const welcomeMessage = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
+            const welcomeMessage = `¡Hola ${recipientName}!, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
 
             await sendMessageToPhoneNumber(recipientPhone, welcomeMessage)
             await sendSimpleButtonsMessage(
@@ -118,9 +118,10 @@ const handler: VercelApiHandler = async (
           const user = await getUserFromPhoneNumber(recipientPhone)
 
           if (!user) {
-            await sendMessageToPhoneNumber(
+            await sendSimpleButtonsMessage(
               recipientPhone,
               `No tienes una billetera asociada a éste número. ¿Deseas crear una?`,
+              [{ title: 'Crear una billetera', id: 'create_wallet' }],
             )
           }
 
@@ -137,7 +138,7 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n ${JSON.stringify(
+                `¿A quién deseas enviar dinero? Ingresa el número de celular de tu amigo o la dirección de su billetera \n ${JSON.stringify(
                   paymentRequest,
                 )}`,
               )
@@ -156,7 +157,7 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                'Acá tenés tu saldos!',
+                '¡Acá tenés tu saldo!',
               )
               await sendMessageToPhoneNumber(
                 recipientPhone,
@@ -179,7 +180,7 @@ const handler: VercelApiHandler = async (
             case 'create_wallet': {
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                'Creando tu billetera! 🔨',
+                '¡Creando tu billetera! 🔨',
               )
 
               const walletAddress = await createUser(
@@ -189,7 +190,7 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                'Tu billetera ha sido creada! 🚀✨, tu dirección es:',
+                '¡Tu billetera ha sido creada! 🚀✨, tu dirección es:',
               )
               await sendSimpleButtonsMessage(recipientPhone, walletAddress, [
                 { title: '¿Qué es una dirección?', id: 'info_address' },
