@@ -22,12 +22,16 @@ function buildPrivateKey() {
   return privateKey
 }
 
+export function getAddressFromPrivateKey(privateKey: string): string {
+  const wallet = new ethers.Wallet(privateKey)
+  return wallet.address
+}
+
 export async function createUser(
   recipientPhone: string,
   recipientName?: string,
 ): Promise<string> {
   const privateKey = buildPrivateKey()
-  const wallet = new ethers.Wallet(privateKey)
 
   const user = await supabase.from('users').insert({
     phone_number: recipientPhone,
@@ -38,5 +42,5 @@ export async function createUser(
   if (user.error) {
     throw new Error('Error creating user')
   }
-  return wallet.address
+  return getAddressFromPrivateKey(privateKey)
 }
