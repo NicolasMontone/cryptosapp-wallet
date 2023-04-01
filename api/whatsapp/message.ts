@@ -41,8 +41,7 @@ const handler: VercelApiHandler = async (
       } = data
 
       if (typeOfMessage === 'text_message') {
-        const message = `¡Hola! ${recipientName}, soy tu crypto-bot favorito. Tu servicio
-        de billetera digital más seguro, confiable y fácil de usar.`
+        const message = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
 
         await sendMessageToPhoneNumber(recipientPhone, message)
         if (hasAssociatedWallet(recipientPhone)) {
