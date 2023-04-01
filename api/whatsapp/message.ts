@@ -85,7 +85,7 @@ const handler: VercelApiHandler = async (
               'Consultando tu saldo 🤑',
             )
             const address = await getUserAddress(recipientPhone)
-            const balance = await getAdressBalance(address)
+            const balance = await getAddressBalance(address)
 
             await sendMessageToPhoneNumber(
               recipientPhone,
