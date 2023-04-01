@@ -27,6 +27,21 @@ export function getAddressFromPrivateKey(privateKey: string): string {
   return wallet.address
 }
 
+export async function getUserAddress(
+  recipientPhone: string,
+): Promise<string> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('private_key')
+    .eq('phone_number', recipientPhone)
+  
+    if (error || !data.length) {
+    throw new Error('Error getting user address')
+  }
+
+  return getAddressFromPrivateKey(data[0].private_key)
+}
+
 export async function createUser(
   recipientPhone: string,
   recipientName?: string,

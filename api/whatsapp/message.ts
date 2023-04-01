@@ -11,6 +11,8 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
+import { getUserAddress } from "../../lib/user"
+
 import { createUser, isUserRegistered } from '../../lib/user'
 
 const handler: VercelApiHandler = async (
@@ -50,6 +52,9 @@ const handler: VercelApiHandler = async (
             { title: 'Enviar dinero', id: 'send_money' },
             { title: 'Consultar saldo', id: 'check_balance' },
           ])
+          await sendSimpleButtonsMessage(recipientPhone, 'Tambien puedes', [
+            { title: 'Consultar direccion', id: 'check_address' }
+          ])
         } else {
           await sendSimpleButtonsMessage(
             recipientPhone,
@@ -78,7 +83,14 @@ const handler: VercelApiHandler = async (
           case 'check_balance':
             // do something
             await sendMessageToPhoneNumber(recipientPhone, `Tu balance es ...`)
+            // TODO : Check balance
             break
+          case 'check_address': {
+            await sendMessageToPhoneNumber(recipientPhone, `Tu dirección es ...`)
+            const address = await getUserAddress(recipientPhone)
+            await sendMessageToPhoneNumber(recipientPhone, address)
+            break
+          }
           case 'create_wallet': {
             await sendMessageToPhoneNumber(
               recipientPhone,
@@ -93,9 +105,14 @@ const handler: VercelApiHandler = async (
               recipientPhone,
               'Tu billetera ha sido creada! 🚀✨, tu dirección es:',
             )
-            await sendMessageToPhoneNumber(recipientPhone, walletAddress)
+            await sendSimpleButtonsMessage(recipientPhone, walletAddress,
+              [{ title: '¿Qué es una dirección?', id: 'info_address' }])
             break
           }
+          case 'info_address':
+            await sendMessageToPhoneNumber(recipientPhone,
+              'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.')
+            break
           default:
             break
         }
