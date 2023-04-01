@@ -89,7 +89,7 @@ const handler: VercelApiHandler = async (
               })
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `Hemos enviado tu dinero. ${String(tx)}`,
+                `Hemos enviado tu dinero. ${JSON.stringify(tx)}`,
               )
               break
             }
