@@ -1,3 +1,4 @@
+import axios from 'axios'
 import crypto from 'crypto'
 
 import { ethers } from 'ethers'
@@ -8,9 +9,22 @@ if (!quickNodeUrl) {
   throw new Error('QUICK_NODE_URL is not defined')
 }
 
-export async function getAdressBalance(address: string): Promise<bigint> {
-  const provider = new ethers.JsonRpcProvider(quickNodeUrl)
-  return await provider.getBalance(address, 'latest')
+type BSCScanResponse<T> = { status: '0'; message: string; result: T }
+
+type WeiAmount = string
+
+type BSCScanAccountResponse = BSCScanResponse<WeiAmount>
+
+export async function getAddressUSDTBalance(
+  address: string,
+): Promise<WeiAmount> {
+  const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=0x55d398326f99059ff775485246999027b3197955&address=${address}&apikey=${process.env.BSCSCAN_API_KEY}}`
+
+  const {
+    data: { result: weiAmount },
+  } = await axios.get<BSCScanAccountResponse>(url)
+
+  return `${Number(weiAmount) / 10 ** 18} USDT`
 }
 
 export function buildPrivateKey(): string {
