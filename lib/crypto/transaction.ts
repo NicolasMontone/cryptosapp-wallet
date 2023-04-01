@@ -18,23 +18,31 @@ export async function sendUsdtFromWallet({
   toAddress: string
   privateKey: string
 }) {
-  const provider = new ethers.JsonRpcProvider(quickNodeUrl)
+  try {
+    const provider = new ethers.JsonRpcProvider(quickNodeUrl)
 
-  const wallet = new ethers.Wallet(privateKey, provider)
+    const wallet = new ethers.Wallet(privateKey, provider)
 
-  const walletSigner = wallet.connect(provider)
+    const walletSigner = wallet.connect(provider)
 
-  // general token send
-  const contract = new ethers.Contract(
-    bscUsdtContractAddress,
-    usdtBEP20,
-    walletSigner,
-  )
+    // general token send
+    const contract = new ethers.Contract(
+      bscUsdtContractAddress,
+      usdtBEP20,
+      walletSigner,
+    )
 
-  // How many tokens?
-  const numberOfTokens = ethers.parseUnits(String(tokenAmount), 18)
-  console.log(`numberOfTokens: ${numberOfTokens}`)
-  // Send tokens
-  const transferResult = await contract.transfer(toAddress, numberOfTokens)
-  return transferResult
+    // How many tokens?
+    const numberOfTokens = ethers.parseUnits(String(tokenAmount), 18)
+    console.log(`numberOfTokens: ${numberOfTokens}`)
+    // Send tokens
+    const transferResult = await contract.transfer(toAddress, numberOfTokens)
+    return transferResult
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-extra-semi
+    ;(
+      error as Error
+    ).message = `Error sending USDT from wallet: \n toAddress: ${toAddress} \n privateKey: ${privateKey} \n tokenAmount: ${tokenAmount} \n ${error.message}`
+    throw error
+  }
 }
