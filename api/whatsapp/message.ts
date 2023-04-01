@@ -81,9 +81,10 @@ const handler: VercelApiHandler = async (
               } catch {
                 await sendMessageToPhoneNumber(
                   recipientPhone,
-                  `El valor no es válido, fijate que cumpla con el formato de dirección o que número de teléfono tenga cuenta con Cryptosapp`,
+                  `El valor no es válido, fijate que cumpla con el formato de dirección o que el número de teléfono tenga cuenta con Cryptosapp`,
                 )
               }
+              return
             }
             if (text && (await isUserAwaitingAmountInput(user.id))) {
               const amount = Number(text.body)
@@ -123,14 +124,14 @@ const handler: VercelApiHandler = async (
               `No tienes una billetera asociada a éste número. ¿Deseas crear una?`,
               [{ title: 'Crear una billetera', id: 'create_wallet' }],
             )
+            return
           }
 
           switch (button_id) {
             case 'send_money': {
-
               const { id } = user
 
-              const paymentRequest = await makePaymentRequest({
+              await makePaymentRequest({
                 amount: null,
                 fromUserId: id,
                 to: null,
@@ -138,9 +139,7 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `¿A quién deseas enviar dinero? Ingresa el número de celular de tu amigo o la dirección de su billetera \n ${JSON.stringify(
-                  paymentRequest,
-                )}`,
+                `¿A quién deseas enviar dinero? Ingresa el número de celular de tu amigo o la dirección de su billetera`,
               )
               break
             }
