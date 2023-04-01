@@ -93,9 +93,14 @@ const handler: VercelApiHandler = async (
               recipientPhone,
               'Tu billetera ha sido creada! 🚀✨, tu dirección es:',
             )
-            await sendMessageToPhoneNumber(recipientPhone, walletAddress)
+            await sendSimpleButtonsMessage(recipientPhone, walletAddress,
+              [{ title: '¿Qué es una dirección?', id: 'info_address' }])
             break
           }
+          case 'info_address':
+            await sendMessageToPhoneNumber(recipientPhone,
+              'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.')
+            break
           default:
             break
         }
