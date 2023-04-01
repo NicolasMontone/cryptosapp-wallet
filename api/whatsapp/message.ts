@@ -13,7 +13,7 @@ import {
 
 import { getUserAddress } from '../../lib/user'
 
-import { getAddressBalance } from '../../lib/crypto'
+import { getAddressUSDTBalance } from '../../lib/crypto'
 import { createUser, isUserRegistered } from '../../lib/user'
 
 const handler: VercelApiHandler = async (
@@ -87,7 +87,7 @@ const handler: VercelApiHandler = async (
               'Consultando tu saldo 🤑',
             )
             const address = await getUserAddress(recipientPhone)
-            const balance = await getAddressBalance(address)
+            const balance = await getAddressUSDTBalance(address)
 
             await sendMessageToPhoneNumber(
               recipientPhone,
