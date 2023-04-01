@@ -1,6 +1,22 @@
 import { supabase } from '../supabase'
 
-import { getAddressFromPrivateKey, buildPrivateKey } from '../crypto'
+import { buildPrivateKey, getAddressFromPrivateKey } from '../crypto'
+
+type User = {
+  privateKey: string
+  id: string
+  createdAt: string
+  phoneNumer: string
+  name: string
+}
+
+type UserResponse = {
+  id: string
+  created_at: string
+  phone_number: string
+  name: string
+  private_key: string
+}
 
 export async function isUserRegistered(
   recipientPhone: string,
@@ -50,4 +66,36 @@ export async function createUser(
     throw new Error('Error creating user')
   }
   return getAddressFromPrivateKey(privateKey)
+}
+
+export async function getUserFromPhoneNumber(
+  recipientPhone: string,
+): Promise<User> {
+  const isRegistered = await isUserRegistered(recipientPhone)
+
+  if (!isRegistered) {
+    await createUser(recipientPhone)
+  }
+
+  const {
+    data: [{ created_at, id, name, phone_number, private_key }],
+    error,
+  } = (await supabase
+    .from('users')
+    .select('*')
+    .eq('phone_number', recipientPhone)) as unknown as {
+    data: UserResponse[]
+    error: unknown
+  }
+
+  if (error) {
+    throw new Error(`Error getting user from phone number ${error}`)
+  }
+  return {
+    createdAt: created_at,
+    id,
+    name,
+    phoneNumer: phone_number,
+    privateKey: private_key,
+  }
 }

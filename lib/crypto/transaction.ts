@@ -3,10 +3,61 @@ import { ethers } from 'ethers'
 import { bscUsdtContractAddress } from '.'
 import usdtBEP20 from './abis/usdtBEP20.json'
 
+import { supabase } from '../../lib/supabase'
+
 const quickNodeUrl = process.env.QUICK_NODE_URL
 
 if (!quickNodeUrl) {
   throw new Error('QUICK_NODE_URL is not defined')
+}
+
+type Status =
+  | 'ADDRESS_PENDING'
+  | 'AMOUNT_PENDING'
+  | 'CONFIRMED'
+  | 'CANCELLED'
+  | 'ERROR'
+
+type PaymentRequest = {
+  id: string
+  createdAt: string
+  fromUserId: string
+  to: string
+  status: Status
+  amount: number | null
+}
+
+// type PaymentRequestDB = {
+//   id: string
+//   created_at: string
+//   from_user_id: string
+//   to: string
+//   status: Status
+//   amount: number | null
+// }
+
+export type Address = string
+export type PhoneNumber = string
+
+export async function makePaymentRequest({
+  fromUserId,
+  to,
+  amount,
+}: {
+  fromUserId: string
+  to: Address | PhoneNumber | null
+  amount: number | null
+}): Promise<PaymentRequest> {
+  // TODO: validate user has enough balance
+
+  const paymentRequest = (await supabase.from('payment_requests').insert({
+    status: 'ADDRESS_PENDING',
+    amount,
+    from_user_id: fromUserId,
+    to: to,
+  })) as unknown as PaymentRequest
+
+  return paymentRequest
 }
 
 export async function sendUsdtFromWallet({
@@ -20,9 +71,7 @@ export async function sendUsdtFromWallet({
 }) {
   try {
     const provider = new ethers.JsonRpcProvider(quickNodeUrl)
-
     const wallet = new ethers.Wallet(privateKey, provider)
-
     const walletSigner = wallet.connect(provider)
 
     // general token send
@@ -47,4 +96,76 @@ export async function sendUsdtFromWallet({
     }`
     throw error
   }
+}
+
+export async function getUserPaymentRequests(
+  userId: string,
+): Promise<PaymentRequest[]> {
+  const { data, error } = await supabase
+    .from('payment_requests')
+    .select('*')
+    .eq('from_user_id', userId)
+
+  if (error) {
+    throw new Error('Error getting user payment requests')
+  }
+
+  return data.map(({ id, created_at, from_user_id, to, status, amount }) => ({
+    id,
+    createdAt: created_at,
+    fromUserId: from_user_id,
+    to,
+    status,
+    amount,
+  }))
+}
+
+export async function isUserAwaitingRemitentInput(userId: string) {
+  const paymentRequests = await getUserPaymentRequests(userId)
+
+  return paymentRequests.some(
+    (paymentRequest) => paymentRequest.status === 'ADDRESS_PENDING',
+  )
+}
+
+export async function isUserAwaitingAmountInput(userId: string) {
+  const paymentRequests = await getUserPaymentRequests(userId)
+
+  return paymentRequests.some(
+    (paymentRequest) => paymentRequest.status === 'AMOUNT_PENDING',
+  )
+}
+
+export async function addRemitentToPaymentRequest({
+  userId,
+  remitent,
+}: {
+  userId: string
+  remitent: string
+}) {
+  await supabase
+    .from('payment_requests')
+    .update({
+      to: remitent,
+      status: 'AMOUNT_PENDING',
+    })
+    .eq('from_user_id', userId)
+    .eq('status', 'ADDRESS_PENDING')
+}
+
+export async function addAmountToPaymentRequest({
+  userId,
+  amount,
+}: {
+  userId: string
+  amount: number
+}) {
+  await supabase
+    .from('payment_requests')
+    .update({
+      amount,
+      status: 'CONFIRMED',
+    })
+    .eq('from_user_id', userId)
+    .eq('status', 'AMOUNT_PENDING')
 }

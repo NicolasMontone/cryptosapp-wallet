@@ -11,11 +11,21 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-import { getUserAddress, getUserPrivateKey } from '../../lib/user'
+import { getUserAddress, getUserFromPhoneNumber, getUserPrivateKey } from '../../lib/user'
 
 import { getAccountBalances } from '../../lib/crypto'
-import { sendUsdtFromWallet } from '../../lib/crypto/transaction'
+
 import { createUser, isUserRegistered } from '../../lib/user'
+
+import {
+  Address,
+  PhoneNumber,
+  addAmountToPaymentRequest,
+  addRemitentToPaymentRequest,
+  isUserAwaitingAmountInput,
+  isUserAwaitingRemitentInput,
+  makePaymentRequest,
+} from '../../lib/crypto/transaction'
 
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
@@ -37,31 +47,53 @@ const handler: VercelApiHandler = async (
           from: { phone: recipientPhone, name: recipientName },
           type: typeOfMessage,
           message_id: messageId,
-          // text,
+          text,
         },
       } = data
+      const sendBasicTransactions = async () => {
+        await sendSimpleButtonsMessage(recipientPhone, 'Qué querés hacer?', [
+          { title: 'Recibir dinero ⬇️', id: 'receive_money' },
+          { title: 'Enviar dinero 💸', id: 'send_money' },
+          { title: 'Consultar saldo 🔎', id: 'check_balance' },
+        ])
+        await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
+          { title: 'Consultar direccion', id: 'check_address' },
+        ])
+      }
 
       try {
         if (typeOfMessage === 'text_message') {
           const isRegistered = await isUserRegistered(recipientPhone)
 
           if (isRegistered) {
+            const user = await getUserFromPhoneNumber(recipientPhone)
+
+            if (text && (await isUserAwaitingRemitentInput(user.id))) {
+              const remitent: PhoneNumber | Address = text.body
+              await addRemitentToPaymentRequest({ userId: user.id, remitent })
+
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                `¿Cuánto dinero deseas enviar?`,
+              )
+              return
+            }
+
+            if (text && (await isUserAwaitingAmountInput(user.id))) {
+              const amount = Number(text.body)
+
+              addAmountToPaymentRequest({ userId: user.id, amount })
+
+              await sendMessageToPhoneNumber(recipientPhone, `Pago exitoso`)
+
+              return
+            }
+
             await sendMessageToPhoneNumber(
               recipientPhone,
               `Hola de nuevo${recipientName ? ` ${recipientName}` : ''}! 👋`,
             )
-            await sendSimpleButtonsMessage(
-              recipientPhone,
-              'Qué querés hacer?',
-              [
-                { title: 'Recibir dinero 🤑', id: 'receive_money' },
-                { title: 'Enviar dinero 💸', id: 'send_money' },
-                { title: 'Consultar saldo 🔎', id: 'check_balance' },
-              ],
-            )
-            await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
-              { title: 'Consultar direccion 👇', id: 'check_address' },
-            ])
+            await sendBasicTransactions()
           } else {
             const welcomeMessage = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
 
@@ -84,15 +116,25 @@ const handler: VercelApiHandler = async (
               )
               break
             case 'send_money': {
-              const privateKey = await getUserPrivateKey(recipientPhone)
-              const tx = await sendUsdtFromWallet({
-                tokenAmount: 1,
-                toAddress: '0x060AE8C945bb01fa7e2833aDD65E00C87b2F49c1',
-                privateKey: privateKey,
+              // const tx = await sendUsdtFromWallet({
+              //   tokenAmount: 0.000001,
+              //   toAddress: '0x060AE8C945bb01fa7e2833aDD65E00C87b2F49c1',
+              //   privateKey: privateKey,
+              // })
+
+              const { id } = await getUserFromPhoneNumber(recipientPhone)
+
+              const paymentRequest = await makePaymentRequest({
+                amount: null,
+                fromUserId: id,
+                to: null,
               })
+
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `Hemos enviado tu dinero. ${JSON.stringify(tx)}`,
+                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n ${JSON.stringify(
+                  paymentRequest,
+                )}`,
               )
               break
             }
@@ -126,6 +168,7 @@ const handler: VercelApiHandler = async (
               const address = await getUserAddress(recipientPhone)
               await sendMessageToPhoneNumber(recipientPhone, 'Tu dirección es:')
               await sendMessageToPhoneNumber(recipientPhone, address)
+              await sendBasicTransactions()
               break
             }
             case 'create_wallet': {
@@ -146,6 +189,12 @@ const handler: VercelApiHandler = async (
               await sendSimpleButtonsMessage(recipientPhone, walletAddress, [
                 { title: '¿Qué es una dirección?', id: 'info_address' },
               ])
+              await sendSimpleButtonsMessage(
+                recipientPhone,
+                'Te comento que para transferir dinero ' +
+                  'tenes que cargar BNB.',
+                [{ title: '¿Qué es BNB?', id: 'info_bnb' }],
+              )
               break
             }
             case 'info_address':
@@ -153,6 +202,13 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.',
               )
+              break
+            case 'info_bnb':
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                'El BNB es el combustible que necesita la blockchain para poner en funcionamiento la red.',
+              )
+              await sendBasicTransactions()
               break
             default:
               break
