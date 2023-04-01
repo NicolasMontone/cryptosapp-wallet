@@ -11,9 +11,10 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-import { getUserAddress } from "../../lib/user"
+import { getUserAddress } from '../../lib/user'
 
 import { createUser, isUserRegistered } from '../../lib/user'
+import { getAdressBalance } from '../../lib/crypto'
 
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
@@ -52,8 +53,8 @@ const handler: VercelApiHandler = async (
             { title: 'Enviar dinero', id: 'send_money' },
             { title: 'Consultar saldo', id: 'check_balance' },
           ])
-          await sendSimpleButtonsMessage(recipientPhone, 'Tambien puedes', [
-            { title: 'Consultar direccion', id: 'check_address' }
+          await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
+            { title: 'Consultar direccion', id: 'check_address' },
           ])
         } else {
           await sendSimpleButtonsMessage(
@@ -80,15 +81,27 @@ const handler: VercelApiHandler = async (
               `Hemos enviado tu dinero. Tu saldo es ...`,
             )
             break
-          case 'check_balance':
-            // do something
-            await sendMessageToPhoneNumber(recipientPhone, `Tu balance es ...`)
-            // TODO : Check balance
-            break
-          case 'check_address': {
-            await sendMessageToPhoneNumber(recipientPhone, `Tu dirección es ...`)
+          case 'check_balance': {
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              'Consultando tu saldo 🤑',
+            )
             const address = await getUserAddress(recipientPhone)
-            await sendMessageToPhoneNumber(recipientPhone, address)
+            const balance = await getAdressBalance(address)
+
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              `Tu saldo es: ${balance} ✨`,
+            )
+
+            break
+          }
+          case 'check_address': {
+            const address = await getUserAddress(recipientPhone)
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              `Tu dirección es: ${address}`,
+            )
             break
           }
           case 'create_wallet': {
@@ -105,13 +118,16 @@ const handler: VercelApiHandler = async (
               recipientPhone,
               'Tu billetera ha sido creada! 🚀✨, tu dirección es:',
             )
-            await sendSimpleButtonsMessage(recipientPhone, walletAddress,
-              [{ title: '¿Qué es una dirección?', id: 'info_address' }])
+            await sendSimpleButtonsMessage(recipientPhone, walletAddress, [
+              { title: '¿Qué es una dirección?', id: 'info_address' },
+            ])
             break
           }
           case 'info_address':
-            await sendMessageToPhoneNumber(recipientPhone,
-              'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.')
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.',
+            )
             break
           default:
             break

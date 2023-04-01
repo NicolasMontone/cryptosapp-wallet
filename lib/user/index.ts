@@ -1,7 +1,6 @@
 import { supabase } from '../supabase'
 
-import crypto from 'crypto'
-import { ethers } from 'ethers'
+import { getAddressFromPrivateKey, buildPrivateKey } from '../crypto'
 
 export async function isUserRegistered(
   recipientPhone: string,
@@ -16,26 +15,13 @@ export async function isUserRegistered(
   return data.length > 0
 }
 
-function buildPrivateKey() {
-  const id = crypto.randomBytes(32).toString('hex')
-  const privateKey = '0x' + id
-  return privateKey
-}
-
-export function getAddressFromPrivateKey(privateKey: string): string {
-  const wallet = new ethers.Wallet(privateKey)
-  return wallet.address
-}
-
-export async function getUserAddress(
-  recipientPhone: string,
-): Promise<string> {
+export async function getUserAddress(recipientPhone: string): Promise<string> {
   const { data, error } = await supabase
     .from('users')
     .select('private_key')
     .eq('phone_number', recipientPhone)
-  
-    if (error || !data.length) {
+
+  if (error || !data.length) {
     throw new Error('Error getting user address')
   }
 
