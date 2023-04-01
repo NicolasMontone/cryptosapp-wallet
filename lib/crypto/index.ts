@@ -26,8 +26,6 @@ export async function getAddressUSDTBalance(
     data: { result: weiAmount },
   } = await axios.get<BSCScanAccountResponse>(url)
 
-  throw new Error('se cago todo')
-
   return `${Number(weiAmount) / 10 ** 18} USDT`
 }
 
