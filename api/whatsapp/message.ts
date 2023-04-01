@@ -43,13 +43,13 @@ const handler: VercelApiHandler = async (
 
       try {
         if (typeOfMessage === 'text_message') {
-          const message = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
-
-          await sendMessageToPhoneNumber(recipientPhone, message)
-
           const isRegistered = await isUserRegistered(recipientPhone)
 
           if (isRegistered) {
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              `Hola de nuevo${recipientName ? ` ${recipientName}` : ''}!`,
+            )
             await sendSimpleButtonsMessage(
               recipientPhone,
               '¿Qué deseas hacer?',
@@ -63,6 +63,9 @@ const handler: VercelApiHandler = async (
               { title: 'Consultar direccion', id: 'check_address' },
             ])
           } else {
+            const welcomeMessage = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
+
+            await sendMessageToPhoneNumber(recipientPhone, welcomeMessage)
             await sendSimpleButtonsMessage(
               recipientPhone,
               'Veo que no tienes una billetera asociada a éste número. ¿Deseas crear una?',
