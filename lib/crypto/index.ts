@@ -9,16 +9,18 @@ if (!quickNodeUrl) {
   throw new Error('QUICK_NODE_URL is not defined')
 }
 
-type BSCScanResponse<T> = { status: '0'; message: string; result: T }
+type BSCScanResponse<T> = { status: string; message: string; result: T }
 
-type WeiAmount = string
+type USDTSmallestUnit = string
 
-type BSCScanAccountResponse = BSCScanResponse<WeiAmount>
+type BSCScanAccountResponse = BSCScanResponse<USDTSmallestUnit>
+
+const bscUsdtContractAddress = '0x55d398326f99059ff775485246999027b3197955'
 
 export async function getAddressUSDTBalance(
   address: string,
-): Promise<WeiAmount> {
-  const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=0x55d398326f99059ff775485246999027b3197955&address=${address}&apikey=${process.env.BSCSCAN_API_KEY}}`
+): Promise<USDTSmallestUnit> {
+  const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=${bscUsdtContractAddress}&address=${address}&apikey=${process.env.BSCSCAN_API_KEY}`
 
   const {
     data: { result: weiAmount },
