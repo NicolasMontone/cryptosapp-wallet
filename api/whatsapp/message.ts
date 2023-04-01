@@ -11,11 +11,12 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-import { getUserAddress, getUserPrivateKey } from '../../lib/user'
+import { getUserAddress, getUserFromPhoneNumber } from '../../lib/user'
 
 import { getAddressUSDTBalance } from '../../lib/crypto'
-import { sendUsdtFromWallet } from '../../lib/crypto/transaction'
 import { createUser, isUserRegistered } from '../../lib/user'
+
+import { makePaymentRequest } from '../../lib/crypto/transaction'
 
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
@@ -87,15 +88,23 @@ const handler: VercelApiHandler = async (
               )
               break
             case 'send_money': {
-              const privateKey = await getUserPrivateKey(recipientPhone)
-              const tx = await sendUsdtFromWallet({
-                tokenAmount: 1,
-                toAddress: '0x060AE8C945bb01fa7e2833aDD65E00C87b2F49c1',
-                privateKey: privateKey,
+              // const tx = await sendUsdtFromWallet({
+              //   tokenAmount: 0.000001,
+              //   toAddress: '0x060AE8C945bb01fa7e2833aDD65E00C87b2F49c1',
+              //   privateKey: privateKey,
+              // })
+
+              const { id } = await getUserFromPhoneNumber(recipientPhone)
+
+              const paymentRequest = await makePaymentRequest({
+                amount: null,
+                fromUserId: id,
+                to: null,
               })
+
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `Hemos enviado tu dinero. ${JSON.stringify(tx)}`,
+                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n${paymentRequest}`,
               )
               break
             }

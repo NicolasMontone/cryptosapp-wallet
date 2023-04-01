@@ -15,7 +15,8 @@ type USDTSmallestUnit = string
 
 type BSCScanAccountResponse = BSCScanResponse<USDTSmallestUnit>
 
-export const bscUsdtContractAddress = '0x55d398326f99059ff775485246999027b3197955'
+export const bscUsdtContractAddress =
+  '0x55d398326f99059ff775485246999027b3197955'
 
 export async function getAddressUSDTBalance(
   address: string,
