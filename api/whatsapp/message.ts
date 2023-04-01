@@ -125,6 +125,7 @@ const handler: VercelApiHandler = async (
               const address = await getUserAddress(recipientPhone)
               await sendMessageToPhoneNumber(recipientPhone, 'Tu dirección es:')
               await sendMessageToPhoneNumber(recipientPhone, address)
+              await sendBasicTransactions()
               break
             }
             case 'create_wallet': {
