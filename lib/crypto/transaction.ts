@@ -28,15 +28,6 @@ type PaymentRequest = {
   amount: number | null
 }
 
-// type PaymentRequestDB = {
-//   id: string
-//   created_at: string
-//   from_user_id: string
-//   to: string
-//   status: Status
-//   amount: number | null
-// }
-
 export type Address = string
 export type PhoneNumber = string
 
@@ -180,4 +171,16 @@ export async function addAmountToPaymentRequest({
     })
     .eq('from_user_id', userId)
     .eq('status', 'AMOUNT_PENDING')
+}
+
+export async function cancelPaymentRequest(userId: string) {
+  await supabase
+    .from('payment_requests')
+    .update({
+      status: 'CANCELLED',
+    })
+    .eq('from_user_id', userId)
+    .neq('status', 'CONFIRMED')
+    .neq('status', 'CANCELLED')
+    .neq('status', 'ERROR')
 }
