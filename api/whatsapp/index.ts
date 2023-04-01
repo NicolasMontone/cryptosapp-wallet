@@ -4,6 +4,8 @@ import axios from 'axios'
 
 import { WhatsappNewMessageEventNotificationRequest } from './types'
 
+import { sleep } from '../../lib/utils/sleep'
+
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
   res: VercelResponse,
@@ -37,6 +39,9 @@ const handler: VercelApiHandler = async (
         `https://${process.env.VERCEL_PROD_URL}/api/whatsapp/message`,
         req.body,
       )
+      // add sleep to ensure that the request to the other lambda function is completed
+      // (should not happen but, since it's a hackathon we are doing this "defensive progrraming")
+      await sleep(300)
     } catch (error) {
       console.error({ error })
     }
