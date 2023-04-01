@@ -11,9 +11,10 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-import { getUserAddress } from '../../lib/user'
+import { getUserAddress, getUserPrivateKey } from '../../lib/user'
 
 import { getAddressUSDTBalance } from '../../lib/crypto'
+import { sendUsdtFromWallet } from '../../lib/crypto/transaction'
 import { createUser, isUserRegistered } from '../../lib/user'
 
 const handler: VercelApiHandler = async (
@@ -79,13 +80,19 @@ const handler: VercelApiHandler = async (
                 'Recibiendo dinero...',
               )
               break
-            case 'send_money':
-              // do something
+            case 'send_money': {
+              const privateKey = await getUserPrivateKey(recipientPhone)
+              const tx = await sendUsdtFromWallet({
+                sendTokenAmount: 1,
+                toAddress: '0x060AE8C945bb01fa7e2833aDD65E00C87b2F49c1',
+                privateKey: privateKey,
+              })
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `Hemos enviado tu dinero. Tu saldo es ...`,
+                `Hemos enviado tu dinero. ${String(tx)}`,
               )
               break
+            }
             case 'check_balance': {
               await sendMessageToPhoneNumber(
                 recipientPhone,
