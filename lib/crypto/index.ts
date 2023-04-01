@@ -15,7 +15,7 @@ export async function getAdressBalance(address: string): Promise<bigint> {
 
 export function buildPrivateKey() {
   const id = crypto.randomBytes(32).toString('hex')
-  const privateKey = '0x' + id
+  const privateKey = `0x${id}`
   return privateKey
 }
 
