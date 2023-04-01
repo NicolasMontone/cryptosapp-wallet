@@ -11,10 +11,7 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-const hasAssociatedWallet = (_recipientPhone: string) => {
-  // do something
-  return true // just for testing
-}
+import { isUserRegistered } from '../../lib/user'
 
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
@@ -45,7 +42,10 @@ const handler: VercelApiHandler = async (
         de billetera digital más seguro, confiable y fácil de usar.`
 
         await sendMessageToPhoneNumber(recipientPhone, message)
-        if (hasAssociatedWallet(recipientPhone)) {
+
+        const isRegistered = await isUserRegistered(recipientPhone)
+
+        if (isRegistered) {
           await sendSimpleButtonsMessage(recipientPhone, '¿Qué deseas hacer?', [
             { title: 'Recibir dinero', id: 'receive_money' },
             { title: 'Enviar dinero', id: 'send_money' },
@@ -54,7 +54,7 @@ const handler: VercelApiHandler = async (
         } else {
           await sendSimpleButtonsMessage(
             recipientPhone,
-            'Veo que no tienes una billetera asociada a este número. ¿Deseas crear una?',
+            'Veo que no tienes una billetera asociada a éste número. ¿Deseas crear una?',
             [{ title: 'Crear una billetera', id: 'create_wallet' }],
           )
         }
@@ -79,6 +79,13 @@ const handler: VercelApiHandler = async (
           case 'check_balance':
             // do something
             await sendMessageToPhoneNumber(recipientPhone, `Tu balance es ...`)
+            break
+          case 'create_wallet':
+            // do something
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              `Tu billetera ha sido creada. Tu saldo es ...`,
+            )
             break
           default:
             break
