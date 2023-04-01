@@ -44,26 +44,29 @@ const handler: VercelApiHandler = async (
 
       try {
         if (typeOfMessage === 'text_message') {
-          const message = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
-
-          await sendMessageToPhoneNumber(recipientPhone, message)
-
           const isRegistered = await isUserRegistered(recipientPhone)
 
           if (isRegistered) {
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              `Hola de nuevo${recipientName ? ` ${recipientName}` : ''}! 👋`,
+            )
             await sendSimpleButtonsMessage(
               recipientPhone,
-              '¿Qué deseas hacer?',
+              'Qué querés hacer?',
               [
-                { title: 'Recibir dinero', id: 'receive_money' },
-                { title: 'Enviar dinero', id: 'send_money' },
-                { title: 'Consultar saldo', id: 'check_balance' },
+                { title: 'Recibir dinero 🤑', id: 'receive_money' },
+                { title: 'Enviar dinero 💸', id: 'send_money' },
+                { title: 'Consultar saldo 🔎', id: 'check_balance' },
               ],
             )
             await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
               { title: 'Consultar direccion', id: 'check_address' },
             ])
           } else {
+            const welcomeMessage = `¡Hola! ${recipientName}, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
+
+            await sendMessageToPhoneNumber(recipientPhone, welcomeMessage)
             await sendSimpleButtonsMessage(
               recipientPhone,
               'Veo que no tienes una billetera asociada a éste número. ¿Deseas crear una?',
@@ -119,17 +122,16 @@ const handler: VercelApiHandler = async (
             }
             case 'check_address': {
               const address = await getUserAddress(recipientPhone)
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                `Tu dirección es: ${address}`,
-              )
+              await sendMessageToPhoneNumber(recipientPhone, 'Tu dirección es:')
+              await sendMessageToPhoneNumber(recipientPhone, address)
               break
             }
             case 'create_wallet': {
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                'Creando tu billetera...',
+                'Creando tu billetera! 🔨',
               )
+
               const walletAddress = await createUser(
                 recipientPhone,
                 recipientName,
