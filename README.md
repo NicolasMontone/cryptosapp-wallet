@@ -1,6 +1,10 @@
 ### Check it out
 
-https://api.whatsapp.com/send?phone=5491173603358&text=Oi
+https://api.whatsapp.com/send?phone=5491173603358&text=Cuentame
+
+Or you can scan our QR Code!
+
+<img src="https://user-images.githubusercontent.com/96897286/229319909-27b75d32-23f9-4a27-8c35-8715b45c29f2.png" height = "300px"/>
 
 ### Endpoints
 

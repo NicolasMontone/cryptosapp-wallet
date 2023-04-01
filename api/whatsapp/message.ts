@@ -11,11 +11,15 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-import { getUserAddress, getUserFromPhoneNumber } from '../../lib/user'
+import {
+  getUserAddress,
+  getUserFromPhoneNumber,
+  getUserPrivateKey,
+} from '../../lib/user'
 
-import { getAddressUSDTBalance } from '../../lib/crypto'
-import { createUser, isUserRegistered } from '../../lib/user'
+import { createUser } from '../../lib/user'
 
+import { getAccountBalances } from 'lib/crypto'
 import {
   Address,
   PhoneNumber,
@@ -51,33 +55,37 @@ const handler: VercelApiHandler = async (
       } = data
       const sendBasicTransactions = async () => {
         await sendSimpleButtonsMessage(recipientPhone, 'Qué querés hacer?', [
-          { title: 'Recibir dinero ⬇️', id: 'receive_money' },
+          { title: 'Consultar direccion', id: 'check_address' },
           { title: 'Enviar dinero 💸', id: 'send_money' },
           { title: 'Consultar saldo 🔎', id: 'check_balance' },
-        ])
-        await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
-          { title: 'Consultar dirección', id: 'check_address' },
         ])
       }
 
       try {
         if (typeOfMessage === 'text_message') {
-          const isRegistered = await isUserRegistered(recipientPhone)
+          const user = await getUserFromPhoneNumber(recipientPhone)
 
-          if (isRegistered) {
-            const user = await getUserFromPhoneNumber(recipientPhone)
-
+          if (user) {
             if (text && (await isUserAwaitingRemitentInput(user.id))) {
               const remitent: PhoneNumber | Address = text.body
-              await addRemitentToPaymentRequest({ userId: user.id, remitent })
-
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                `¿Cuánto dinero deseas enviar?`,
-              )
+              try {
+                const remitentSuccess = await addRemitentToPaymentRequest({
+                  userId: user.id,
+                  remitent,
+                })
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  `¿Cuánto dinero deseas enviar a ${remitentSuccess}?`,
+                )
+                return
+              } catch {
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  `El valor no es válido, fijate que cumpla con el formato de dirección o que el número de teléfono tenga cuenta con Cryptosapp`,
+                )
+              }
               return
             }
-
             if (text && (await isUserAwaitingAmountInput(user.id))) {
               const amount = Number(text.body)
 
@@ -107,23 +115,22 @@ const handler: VercelApiHandler = async (
 
         if (typeOfMessage === 'simple_button_message') {
           const button_id = data.message.button_reply.id
+
+          const user = await getUserFromPhoneNumber(recipientPhone)
+
+          if (!user) {
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              `No tienes una billetera asociada a éste número. ¿Deseas crear una?`,
+            )
+            return
+          }
+
           switch (button_id) {
-            case 'receive_money':
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                'Recibiendo dinero...',
-              )
-              break
             case 'send_money': {
-              // const tx = await sendUsdtFromWallet({
-              //   tokenAmount: 0.000001,
-              //   toAddress: '0x060AE8C945bb01fa7e2833aDD65E00C87b2F49c1',
-              //   privateKey: privateKey,
-              // })
+              const { id } = user
 
-              const { id } = await getUserFromPhoneNumber(recipientPhone)
-
-              const paymentRequest = await makePaymentRequest({
+              await makePaymentRequest({
                 amount: null,
                 fromUserId: id,
                 to: null,
@@ -131,9 +138,7 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n ${JSON.stringify(
-                  paymentRequest,
-                )}`,
+                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera`,
               )
               break
             }
@@ -142,12 +147,23 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 'Consultando tu saldo 🤑',
               )
-              const address = await getUserAddress(recipientPhone)
-              const balance = await getAddressUSDTBalance(address)
+              const privateKey = await getUserPrivateKey(recipientPhone)
+
+              const { bnbBalance, usdtBalance } = await getAccountBalances(
+                privateKey,
+              )
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `Tu saldo es: ${balance} ✨`,
+                'Acá tenés tu saldos!',
+              )
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                `BNB: ${bnbBalance} BNB`,
+              )
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                `USDT: ${usdtBalance} USDT`,
               )
 
               break
@@ -206,7 +222,7 @@ const handler: VercelApiHandler = async (
         console.error({ error })
         await sendMessageToPhoneNumber(
           recipientPhone,
-          `🔴 Ha ocurrido un error: ${error.message}`,
+          `🔴 Ha ocurrido un error: ${(error as Error).message}`,
         )
       }
 

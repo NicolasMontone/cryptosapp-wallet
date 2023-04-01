@@ -1,7 +1,8 @@
-import axios from 'axios'
 import crypto from 'crypto'
 
 import { ethers } from 'ethers'
+
+import usdtBEP20 from './abis/usdtBEP20.json'
 
 const quickNodeUrl = process.env.QUICK_NODE_URL
 
@@ -9,25 +10,44 @@ if (!quickNodeUrl) {
   throw new Error('QUICK_NODE_URL is not defined')
 }
 
-type BSCScanResponse<T> = { status: string; message: string; result: T }
-
-type USDTSmallestUnit = string
-
-type BSCScanAccountResponse = BSCScanResponse<USDTSmallestUnit>
-
 export const bscUsdtContractAddress =
   '0x55d398326f99059ff775485246999027b3197955'
 
-export async function getAddressUSDTBalance(
-  address: string,
-): Promise<USDTSmallestUnit> {
-  const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&contractaddress=${bscUsdtContractAddress}&address=${address}&apikey=${process.env.BSCSCAN_API_KEY}`
+type Numberish = number | bigint
 
-  const {
-    data: { result: weiAmount },
-  } = await axios.get<BSCScanAccountResponse>(url)
+/**
+ * helper function to remove 18 decimals from a number
+ * @param number
+ * @returns
+ */
+function removeDecimals(number: Numberish): number {
+  return Number(number) / 10 ** 18
+}
 
-  return `${Number(weiAmount) / 10 ** 18} USDT`
+export async function getAccountBalances(privateKey: string): Promise<{
+  bnbBalance: number
+  usdtBalance: number
+}> {
+  const provider = new ethers.JsonRpcProvider(quickNodeUrl)
+
+  const wallet = new ethers.Wallet(privateKey)
+
+  const walletSigner = wallet.connect(provider)
+
+  const usdtContract = new ethers.Contract(
+    bscUsdtContractAddress,
+    usdtBEP20,
+    walletSigner,
+  )
+
+  const bnbBalance = await provider.getBalance(wallet.address, 'latest')
+
+  const usdtBalance = await usdtContract.balanceOf(wallet.address)
+
+  return {
+    bnbBalance: removeDecimals(bnbBalance),
+    usdtBalance: removeDecimals(usdtBalance),
+  }
 }
 
 export function buildPrivateKey(): string {

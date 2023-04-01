@@ -70,17 +70,8 @@ export async function createUser(
 
 export async function getUserFromPhoneNumber(
   recipientPhone: string,
-): Promise<User> {
-  const isRegistered = await isUserRegistered(recipientPhone)
-
-  if (!isRegistered) {
-    await createUser(recipientPhone)
-  }
-
-  const {
-    data: [{ created_at, id, name, phone_number, private_key }],
-    error,
-  } = (await supabase
+): Promise<User | null> {
+  const { data: users, error } = (await supabase
     .from('users')
     .select('*')
     .eq('phone_number', recipientPhone)) as unknown as {
@@ -91,6 +82,13 @@ export async function getUserFromPhoneNumber(
   if (error) {
     throw new Error(`Error getting user from phone number ${error}`)
   }
+
+  if (users.length === 0) {
+    return null
+  }
+
+  const [{ created_at, id, name, phone_number, private_key }] = users
+
   return {
     createdAt: created_at,
     id,
