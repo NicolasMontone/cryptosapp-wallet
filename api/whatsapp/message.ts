@@ -29,6 +29,7 @@ import {
   isUserAwaitingAmountInput,
   isUserAwaitingRemitentInput,
   makePaymentRequest,
+  sendUsdtFromWallet,
 } from '../../lib/crypto/transaction'
 
 const handler: VercelApiHandler = async (
@@ -95,6 +96,12 @@ const handler: VercelApiHandler = async (
             }
             if (text && (await isUserAwaitingAmountInput(user.id))) {
               const amount = Number(text.body)
+
+              sendUsdtFromWallet({
+                tokenAmount: amount,
+                privateKey: await getUserPrivateKey(user.id),
+                toAddress: await getUserAddress(user.id),
+              })
 
               addAmountToPaymentRequest({ userId: user.id, amount })
 
