@@ -19,7 +19,9 @@ import { createUser, isUserRegistered } from '../../lib/user'
 import {
   Address,
   PhoneNumber,
+  addAmountToPaymentRequest,
   addRemitentToPaymentRequest,
+  isUserAwaitingAmountInput,
   isUserAwaitingRemitentInput,
   makePaymentRequest,
 } from '../../lib/crypto/transaction'
@@ -67,12 +69,21 @@ const handler: VercelApiHandler = async (
 
             if (text && (await isUserAwaitingRemitentInput(user.id))) {
               const remitent: PhoneNumber | Address = text.body
-              addRemitentToPaymentRequest({ userId: user.id, remitent })
+              await addRemitentToPaymentRequest({ userId: user.id, remitent })
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
                 `¿Cuánto dinero deseas enviar?`,
               )
+              return
+            }
+
+            if (text && (await isUserAwaitingAmountInput(user.id))) {
+              const amount = Number(text.body)
+
+              addAmountToPaymentRequest({ userId: user.id, amount })
+
+              return
             }
 
             await sendMessageToPhoneNumber(

@@ -151,9 +151,26 @@ export async function addRemitentToPaymentRequest({
   await supabase
     .from('payment_requests')
     .update({
-      address_from: remitent,
+      to: remitent,
       status: 'AMOUNT_PENDING',
     })
     .eq('from_user_id', userId)
     .eq('status', 'ADDRESS_PENDING')
+}
+
+export async function addAmountToPaymentRequest({
+  userId,
+  amount,
+}: {
+  userId: string
+  amount: number
+}) {
+  await supabase
+    .from('payment_requests')
+    .update({
+      amount,
+      status: 'CONFIRMED',
+    })
+    .eq('from_user_id', userId)
+    .eq('status', 'AMOUNT_PENDING')
 }
