@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import { bscUsdtContractAddress } from '.'
 import usdtBEP20 from './abis/usdtBEP20.json'
 
+import { getUserFromPhoneNumber } from 'lib/user'
 import { supabase } from '../../lib/supabase'
 
 const quickNodeUrl = process.env.QUICK_NODE_URL
@@ -141,6 +142,15 @@ export async function addRemitentToPaymentRequest({
   userId: string
   remitent: string
 }) {
+  const isAddress = ethers.isAddress(remitent)
+  const remitentUser = await getUserFromPhoneNumber(remitent)
+
+  if (!isAddress && !remitentUser) {
+    throw new Error(
+      'Invalid remitent, must be a valid address or phone number of a registered user',
+    )
+  }
+
   await supabase
     .from('payment_requests')
     .update({
@@ -149,6 +159,8 @@ export async function addRemitentToPaymentRequest({
     })
     .eq('from_user_id', userId)
     .eq('status', 'ADDRESS_PENDING')
+
+  return remitentUser?.name || isAddress
 }
 
 export async function addAmountToPaymentRequest({
