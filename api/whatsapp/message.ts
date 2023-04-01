@@ -11,9 +11,7 @@ import {
   WhatsappParsedMessage,
 } from './types'
 
-import { getUserAddress } from '../../lib/user'
-
-import { createUser, isUserRegistered } from '../../lib/user'
+import { getUserAddress, createUser, isUserRegistered } from '../../lib/user'
 import { getAdressBalance } from '../../lib/crypto'
 
 const handler: VercelApiHandler = async (
