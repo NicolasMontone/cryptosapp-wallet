@@ -13,8 +13,8 @@ import {
 
 import { getUserAddress } from '../../lib/user'
 
+import { getAddressBalance } from '../../lib/crypto'
 import { createUser, isUserRegistered } from '../../lib/user'
-import { getAdressBalance } from '../../lib/crypto'
 
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
@@ -87,7 +87,7 @@ const handler: VercelApiHandler = async (
               'Consultando tu saldo 🤑',
             )
             const address = await getUserAddress(recipientPhone)
-            const balance = await getAdressBalance(address)
+            const balance = await getAddressBalance(address)
 
             await sendMessageToPhoneNumber(
               recipientPhone,
