@@ -42,15 +42,11 @@ const handler: VercelApiHandler = async (
         },
       } = data
       const sendBasicTransactions = async () => {
-        await sendSimpleButtonsMessage(
-          recipientPhone,
-          'Qué querés hacer?',
-          [
-            { title: 'Recibir dinero 🤑', id: 'receive_money' },
-            { title: 'Enviar dinero 💸', id: 'send_money' },
-            { title: 'Consultar saldo 🔎', id: 'check_balance' },
-          ],
-        )
+        await sendSimpleButtonsMessage(recipientPhone, 'Qué querés hacer?', [
+          { title: 'Recibir dinero 🤑', id: 'receive_money' },
+          { title: 'Enviar dinero 💸', id: 'send_money' },
+          { title: 'Consultar saldo 🔎', id: 'check_balance' },
+        ])
         await sendSimpleButtonsMessage(recipientPhone, 'También puedes', [
           { title: 'Consultar direccion', id: 'check_address' },
         ])
@@ -104,7 +100,9 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n${paymentRequest}`,
+                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n${JSON.stringify(
+                  paymentRequest,
+                )}`,
               )
               break
             }
@@ -147,12 +145,12 @@ const handler: VercelApiHandler = async (
               await sendSimpleButtonsMessage(recipientPhone, walletAddress, [
                 { title: '¿Qué es una dirección?', id: 'info_address' },
               ])
-              await sendSimpleButtonsMessage(recipientPhone,
-                'Te comento que para transferir dinero '
-                + "tenes que cargar BNB.",
-              [
-                { title: '¿Qué es BNB?', id: 'info_bnb' },
-              ])
+              await sendSimpleButtonsMessage(
+                recipientPhone,
+                'Te comento que para transferir dinero ' +
+                  'tenes que cargar BNB.',
+                [{ title: '¿Qué es BNB?', id: 'info_bnb' }],
+              )
               break
             }
             case 'info_address':
@@ -162,8 +160,10 @@ const handler: VercelApiHandler = async (
               )
               break
             case 'info_bnb':
-              await sendMessageToPhoneNumber(recipientPhone,
-                'El BNB es el combustible que necesita la blockchain para poner en funcionamiento la red.')
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                'El BNB es el combustible que necesita la blockchain para poner en funcionamiento la red.',
+              )
               await sendBasicTransactions()
               break
             default:
@@ -175,7 +175,6 @@ const handler: VercelApiHandler = async (
         await sendMessageToPhoneNumber(
           recipientPhone,
           `🔴 Ha ocurrido un error: ${error.message}`,
-          // ! linter: error is of type unknown
         )
       }
 
