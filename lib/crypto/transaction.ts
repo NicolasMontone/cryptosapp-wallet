@@ -11,20 +11,35 @@ if (!quickNodeUrl) {
   throw new Error('QUICK_NODE_URL is not defined')
 }
 
+type Status =
+  | 'ADDRESS_PENDING'
+  | 'AMOUNT_PENDING'
+  | 'CONFIRMED'
+  | 'CANCELLED'
+  | 'ERROR'
+
 type PaymentRequest = {
-  status:
-    | 'ADDRESS_PENDING'
-    | 'AMOUNT_PENDING'
-    | 'CONFIRMED'
-    | 'CANCELLED'
-    | 'ERROR'
-  amount: number
-  addressFrom: string
-  addressTo: string
+  id: string
+  createdAt: string
+  fromUserId: string
+  to: string
+  addressFrom: string | null
+  status: Status
+  amount: number | null
 }
 
-type Address = string
-type PhoneNumber = string
+// type PaymentRequestDB = {
+//   id: string
+//   created_at: string
+//   from_user_id: string
+//   to: string
+//   address_from: string | null
+//   status: Status
+//   amount: number | null
+// }
+
+export type Address = string
+export type PhoneNumber = string
 
 export async function makePaymentRequest({
   fromUserId,
@@ -83,4 +98,62 @@ export async function sendUsdtFromWallet({
     ).message = `Error sending USDT from wallet: \n toAddress: ${toAddress} \n privateKey: ${privateKey} \n tokenAmount: ${tokenAmount} \n ${error.message}`
     throw error
   }
+}
+
+export async function getUserPaymentRequests(
+  userId: string,
+): Promise<PaymentRequest[]> {
+  const { data, error } = await supabase
+    .from('payment_requests')
+    .select('*')
+    .eq('from_user_id', userId)
+
+  if (error) {
+    throw new Error('Error getting user payment requests')
+  }
+
+  return data.map(
+    ({ id, created_at, from_user_id, to, address_from, status, amount }) => ({
+      id,
+      createdAt: created_at,
+      fromUserId: from_user_id,
+      to,
+      addressFrom: address_from,
+      status,
+      amount,
+    }),
+  )
+}
+
+export async function isUserAwaitingRemitentInput(userId: string) {
+  const paymentRequests = await getUserPaymentRequests(userId)
+
+  return paymentRequests.some(
+    (paymentRequest) => paymentRequest.status === 'ADDRESS_PENDING',
+  )
+}
+
+export async function isUserAwaitingAmountInput(userId: string) {
+  const paymentRequests = await getUserPaymentRequests(userId)
+
+  return paymentRequests.some(
+    (paymentRequest) => paymentRequest.status === 'AMOUNT_PENDING',
+  )
+}
+
+export async function addRemitentToPaymentRequest({
+  userId,
+  remitent,
+}: {
+  userId: string
+  remitent: string
+}) {
+  await supabase
+    .from('payment_requests')
+    .update({
+      address_from: remitent,
+      status: 'AMOUNT_PENDING',
+    })
+    .eq('from_user_id', userId)
+    .eq('status', 'ADDRESS_PENDING')
 }

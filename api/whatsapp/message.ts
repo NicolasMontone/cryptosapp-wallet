@@ -16,7 +16,13 @@ import { getUserAddress, getUserFromPhoneNumber } from '../../lib/user'
 import { getAddressUSDTBalance } from '../../lib/crypto'
 import { createUser, isUserRegistered } from '../../lib/user'
 
-import { makePaymentRequest } from '../../lib/crypto/transaction'
+import {
+  Address,
+  PhoneNumber,
+  addRemitentToPaymentRequest,
+  isUserAwaitingRemitentInput,
+  makePaymentRequest,
+} from '../../lib/crypto/transaction'
 
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
@@ -38,12 +44,12 @@ const handler: VercelApiHandler = async (
           from: { phone: recipientPhone, name: recipientName },
           type: typeOfMessage,
           message_id: messageId,
-          // text,
+          text,
         },
       } = data
       const sendBasicTransactions = async () => {
         await sendSimpleButtonsMessage(recipientPhone, 'Qué querés hacer?', [
-          { title: 'Recibir dinero 🤑', id: 'receive_money' },
+          { title: 'Recibir dinero ⬇️', id: 'receive_money' },
           { title: 'Enviar dinero 💸', id: 'send_money' },
           { title: 'Consultar saldo 🔎', id: 'check_balance' },
         ])
@@ -57,6 +63,18 @@ const handler: VercelApiHandler = async (
           const isRegistered = await isUserRegistered(recipientPhone)
 
           if (isRegistered) {
+            const user = await getUserFromPhoneNumber(recipientPhone)
+
+            if (text && (await isUserAwaitingRemitentInput(user.id))) {
+              const remitent: PhoneNumber | Address = text.body
+              addRemitentToPaymentRequest({ userId: user.id, remitent })
+
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                `¿Cuánto dinero deseas enviar?`,
+              )
+            }
+
             await sendMessageToPhoneNumber(
               recipientPhone,
               `Hola de nuevo${recipientName ? ` ${recipientName}` : ''}! 👋`,
@@ -100,9 +118,7 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n${JSON.stringify(
-                  paymentRequest,
-                )}`,
+                `A quién deseas enviar dinero? ingresa el numero de celular de tu amigo o la dirección de su billetera \n`,
               )
               break
             }
