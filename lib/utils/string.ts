@@ -18,7 +18,7 @@ export function normalizeString(value: string): string {
  * @param value
  * @returns
  */
-export function numberishValue(value: string): number {
+export function transformStringToNumber(value: string): number {
   const number = Number(value.replace(/\D/g, ''))
   if (Number.isNaN(number)) {
     throw new Error(`Invalid number ${value}`)

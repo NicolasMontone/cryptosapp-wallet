@@ -20,7 +20,7 @@ import {
 import { createUser } from '../../lib/user'
 
 import { getAccountBalances } from 'lib/crypto'
-import { numberishValue } from '../../lib/utils/string'
+import { transformStringToNumber } from '../../lib/utils/string'
 import {
   Address,
   PhoneNumber,
@@ -99,7 +99,7 @@ const handler: VercelApiHandler = async (
               let amount: number
 
               try {
-                amount = numberishValue(text.body)
+                amount = transformStringToNumber(text.body)
               } catch (error) {
                 await sendSimpleButtonsMessage(
                   recipientPhone,
