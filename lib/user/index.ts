@@ -82,8 +82,6 @@ export async function getUserFromPhoneNumber(
     .replace('+', '')
     .replace(' ', '')
     .replace('-', '')
-    .replace('(', '')
-    .replace(')', '')
 
   const { data: users, error } = await supabase
     .from('users')
