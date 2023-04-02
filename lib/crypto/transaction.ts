@@ -85,8 +85,18 @@ export async function sendUsdtFromWallet({
     )
 
     if (isInsufficientFunds) {
-      throw new Error('Insufficient funds')
+      throw new Error('insufficient funds for gas')
     }
+
+    const isInsufficientGas = error.message.includes(
+      'insufficient funds for gas',
+    )
+
+    if (isInsufficientGas) {
+      throw new Error('No tenés suficiente BNB para pagar el gas')
+    }
+
+    throw error
   }
 }
 
