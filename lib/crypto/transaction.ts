@@ -177,6 +177,7 @@ export async function addRemitentToPaymentRequest({
       )}`,
     )
   }
+  console.log('userId', userId)
 
   await supabase
     .from('payment_requests')
