@@ -120,6 +120,22 @@ export async function isUserAwaitingRemitentInput(userId: string) {
   )
 }
 
+export async function getRecipientAddressFromUncompletedPaymentRequest(
+  userId: string,
+): Promise<string> {
+  const paymentRequests = await getUserPaymentRequests(userId)
+
+  const pendingPaymentRequest = paymentRequests.find(
+    (paymentRequest) => paymentRequest.status === 'ADDRESS_PENDING',
+  )
+
+  if (!pendingPaymentRequest) {
+    throw new Error('No pending payment requests found')
+  }
+
+  return pendingPaymentRequest.to
+}
+
 export async function isUserAwaitingAmountInput(userId: string) {
   const paymentRequests = await getUserPaymentRequests(userId)
 

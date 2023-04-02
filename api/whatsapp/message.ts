@@ -26,6 +26,7 @@ import {
   addAmountToPaymentRequest,
   addRemitentToPaymentRequest,
   cancelPaymentRequest,
+  getRecipientAddressFromUncompletedPaymentRequest,
   isUserAwaitingAmountInput,
   isUserAwaitingRemitentInput,
   makePaymentRequest,
@@ -96,7 +97,10 @@ const handler: VercelApiHandler = async (
               sendUsdtFromWallet({
                 tokenAmount: amount,
                 privateKey: await getPrivateKeyByPhoneNumber(recipientPhone),
-                toAddress: await getAddressByPhoneNumber(recipientPhone),
+                toAddress:
+                  await getRecipientAddressFromUncompletedPaymentRequest(
+                    user.id,
+                  ),
               })
 
               addAmountToPaymentRequest({ userId: user.id, amount })
