@@ -156,7 +156,9 @@ export async function addRemitentToPaymentRequest({
 
   if (!isAddress && !remitentUser) {
     throw new Error(
-      'Invalid remitent, must be a valid address or phone number of a registered user',
+      `Invalid remitent, must be a valid address or phone number of a registered user ${JSON.stringify(
+        remitent,
+      )}`,
     )
   }
 
