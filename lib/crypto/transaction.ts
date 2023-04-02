@@ -122,7 +122,7 @@ export async function getUserPaymentRequests(
   }))
 }
 
-export async function isUserAwaitingRemitentInput(userId: string) {
+export async function isRemitentAddressPending(userId: string) {
   const paymentRequests = await getUserPaymentRequests(userId)
 
   return paymentRequests.some(

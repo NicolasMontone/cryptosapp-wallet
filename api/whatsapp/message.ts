@@ -29,7 +29,7 @@ import {
   getBscScanUrlForAddress,
   getRecipientAddressFromUncompletedPaymentRequest,
   isUserAwaitingAmountInput,
-  isUserAwaitingRemitentInput,
+  isRemitentAddressPending,
   makePaymentRequest,
   sendUsdtFromWallet,
   updatePaymentRequestToError,
@@ -70,7 +70,13 @@ const handler: VercelApiHandler = async (
           const user = await getUserFromPhoneNumber(recipientPhone)
 
           if (user) {
-            if (text && (await isUserAwaitingRemitentInput(user.id))) {
+            console.log('TEST', {
+              user,
+              text,
+              isRemitentAddressPending: await isRemitentAddressPending(user.id),
+            })
+
+            if (text && (await isRemitentAddressPending(user.id))) {
               const remitent: PhoneNumber | Address = text.body
               console.log('hasta aca', {
                 userId: user.id,
