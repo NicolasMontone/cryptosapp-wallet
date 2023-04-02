@@ -31,7 +31,7 @@ export async function isUserRegistered(
   return data.length > 0
 }
 
-export async function getUserPrivateKey(
+export async function getPrivateKeyByPhoneNumber(
   recipientPhone: string,
 ): Promise<string> {
   const { data, error } = await supabase
@@ -39,14 +39,21 @@ export async function getUserPrivateKey(
     .select('private_key')
     .eq('phone_number', recipientPhone)
 
-  if (error || !data.length) {
-    throw new Error('Error getting user address')
+  if (error || data.length === 0) {
+    throw new Error(
+      `Error getting user address, ${JSON.stringify({
+        error,
+        recipientPhone,
+      })} `,
+    )
   }
   return data[0].private_key
 }
 
-export async function getUserAddress(recipientPhone: string): Promise<string> {
-  const privateKey = await getUserPrivateKey(recipientPhone)
+export async function getAddressByPhoneNumber(
+  recipientPhone: string,
+): Promise<string> {
+  const privateKey = await getPrivateKeyByPhoneNumber(recipientPhone)
   return getAddressFromPrivateKey(privateKey)
 }
 

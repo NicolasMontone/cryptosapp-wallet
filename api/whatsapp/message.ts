@@ -12,9 +12,9 @@ import {
 } from './types'
 
 import {
-  getUserAddress,
+  getAddressByPhoneNumber,
+  getPrivateKeyByPhoneNumber,
   getUserFromPhoneNumber,
-  getUserPrivateKey,
 } from '../../lib/user'
 
 import { createUser } from '../../lib/user'
@@ -95,8 +95,8 @@ const handler: VercelApiHandler = async (
 
               sendUsdtFromWallet({
                 tokenAmount: amount,
-                privateKey: await getUserPrivateKey(user.id),
-                toAddress: await getUserAddress(user.id),
+                privateKey: await getPrivateKeyByPhoneNumber(recipientPhone),
+                toAddress: await getAddressByPhoneNumber(recipientPhone),
               })
 
               addAmountToPaymentRequest({ userId: user.id, amount })
@@ -157,7 +157,9 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 'Consultando tu saldo 🤑',
               )
-              const privateKey = await getUserPrivateKey(recipientPhone)
+              const privateKey = await getPrivateKeyByPhoneNumber(
+                recipientPhone,
+              )
 
               const { bnbBalance, usdtBalance } = await getAccountBalances(
                 privateKey,
@@ -179,7 +181,7 @@ const handler: VercelApiHandler = async (
               break
             }
             case 'check_address': {
-              const address = await getUserAddress(recipientPhone)
+              const address = await getAddressByPhoneNumber(recipientPhone)
               await sendMessageToPhoneNumber(recipientPhone, 'Tu dirección es:')
               await sendMessageToPhoneNumber(recipientPhone, address)
               await sendMenuButtons()
