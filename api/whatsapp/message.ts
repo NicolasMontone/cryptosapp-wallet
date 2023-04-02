@@ -20,6 +20,7 @@ import {
 import { createUser } from '../../lib/user'
 
 import { getAccountBalances } from 'lib/crypto'
+import { transformStringToNumber } from '../../lib/utils/number'
 import {
   Address,
   PhoneNumber,
@@ -98,7 +99,18 @@ const handler: VercelApiHandler = async (
               return
             }
             if (text && (await isUserAwaitingAmountInput(user.id))) {
-              const amount = Number(text.body)
+              let amount: number
+
+              try {
+                amount = transformStringToNumber(text.body)
+              } catch (error) {
+                await sendSimpleButtonsMessage(
+                  recipientPhone,
+                  `El formato no es válido 🤕, fijate que sea un número entero o decimal!`,
+                  [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
+                )
+                return
+              }
 
               try {
                 const receiverUser =
