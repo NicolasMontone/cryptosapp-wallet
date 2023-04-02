@@ -20,7 +20,7 @@ import {
 import { createUser } from '../../lib/user'
 
 import { getAccountBalances } from 'lib/crypto'
-import { transformStringToNumber } from '../../lib/utils/string'
+import { transformStringToNumber } from '../../lib/utils/number'
 import {
   Address,
   PhoneNumber,
