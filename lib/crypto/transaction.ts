@@ -80,7 +80,7 @@ export async function sendUsdtFromWallet({
     const transferResult = await contract.transfer(toAddress, numberOfTokens)
     return transferResult
   } catch (error) {
-    const isInsufficientFunds = error.message.includes(
+    const isInsufficientFunds = (error as Error).message.includes(
       'transfer amount exceeds balance',
     )
 
@@ -88,7 +88,7 @@ export async function sendUsdtFromWallet({
       throw new Error('insufficient funds for gas')
     }
 
-    const isInsufficientGas = error.message.includes(
+    const isInsufficientGas = (error as Error).message.includes(
       'insufficient funds for gas',
     )
 
