@@ -275,7 +275,7 @@ const handler: VercelApiHandler = async (
               break
             }
             case 'info_address': {
-              sendSimpleButtonsMessage(
+              await sendSimpleButtonsMessage(
                 recipientPhone,
                 'Una dirección es como un número de cuenta bancaria que podés usar para recibir dinero de otras personas. En este caso la billetera usa la red Binance Smart Chain, y soporta la criptomoneda USDT. Para hacer transferencias vas a necesitar BNB',
                 [{ title: 'Qué es BNB?', id: 'info_bnb' }],
