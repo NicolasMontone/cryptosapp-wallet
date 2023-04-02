@@ -178,6 +178,10 @@ export async function addReceiverToPayment({
   userId: string
   receiver: string
 }) {
+  console.log('#######################', {
+    receiver,
+    userId,
+  })
   await sendMessageToPhoneNumber(
     receiver,
     `here!!!!!! ${JSON.stringify({
