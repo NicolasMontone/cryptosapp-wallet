@@ -5,6 +5,7 @@ import usdtBEP20 from './abis/usdtBEP20.json'
 
 import { getAddressByPhoneNumber, getUserFromPhoneNumber } from 'lib/user'
 import { supabase } from '../../lib/supabase'
+import { sendMessageToPhoneNumber } from '../whatsapp'
 
 const quickNodeUrl = process.env.QUICK_NODE_URL
 
@@ -122,7 +123,7 @@ export async function getUserPaymentRequests(
   }))
 }
 
-export async function isRemitentAddressPending(userId: string) {
+export async function isReceiverInputPending(userId: string) {
   const paymentRequests = await getUserPaymentRequests(userId)
 
   return paymentRequests.some(
@@ -170,35 +171,37 @@ export async function isUserAwaitingAmountInput(userId: string) {
   )
 }
 
-export async function addRemitentToPaymentRequest({
+export async function addReceiverToPayment({
   userId,
-  remitent,
+  receiver,
 }: {
   userId: string
-  remitent: string
+  receiver: string
 }) {
-  const isAddress = ethers.isAddress(remitent)
-  const remitentUser = await getUserFromPhoneNumber(remitent)
+  const isAddress = ethers.isAddress(receiver)
+  const receiverUser = await getUserFromPhoneNumber(receiver)
 
-  console.log('###############################', userId)
-  if (!isAddress && !remitentUser) {
+  if (!isAddress && !receiverUser) {
     throw new Error(
       `Invalid remitent, must be a valid address or phone number of a registered user ${JSON.stringify(
-        remitent,
+        receiver,
       )}`,
     )
   }
-  // UPDATE FROM "payment_requests" SET "to" = '0x8f9 WHERE "from_user_id" = 'auth0|60c1c1f1b0c3b4006b8b0c1c' AND "status" = 'ADDRESS_PENDING'
-  await supabase
+
+  await sendMessageToPhoneNumber(receiver, `${JSON.stringify(receiverUser)}`)
+  const test = await supabase
     .from('payment_requests')
     .update({
-      to: remitent,
+      to: receiver,
       status: 'AMOUNT_PENDING',
     })
     .eq('from_user_id', userId)
     .eq('status', 'ADDRESS_PENDING')
 
-  return remitentUser?.name || isAddress
+  await sendMessageToPhoneNumber(receiver, `${JSON.stringify(test)}`)
+
+  return receiverUser?.name || receiver
 }
 
 export async function confirmPaymentRequest({

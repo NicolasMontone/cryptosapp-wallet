@@ -23,13 +23,13 @@ import { getAccountBalances } from 'lib/crypto'
 import {
   Address,
   PhoneNumber,
-  addRemitentToPaymentRequest,
+  addReceiverToPayment,
   cancelPaymentRequest,
   confirmPaymentRequest,
   getBscScanUrlForAddress,
   getRecipientAddressFromUncompletedPaymentRequest,
   isUserAwaitingAmountInput,
-  isRemitentAddressPending,
+  isReceiverInputPending,
   makePaymentRequest,
   sendUsdtFromWallet,
   updatePaymentRequestToError,
@@ -70,30 +70,17 @@ const handler: VercelApiHandler = async (
           const user = await getUserFromPhoneNumber(recipientPhone)
 
           if (user) {
-            await sendMessageToPhoneNumber(
-              recipientPhone,
-              JSON.stringify({
-                user,
-                text,
-                isRemitentAddressPending: await isRemitentAddressPending(
-                  user.id,
-                ),
-              }),
-            )
-            if (text && (await isRemitentAddressPending(user.id))) {
-              const remitent: PhoneNumber | Address = text.body
-              console.log('hasta aca', {
-                userId: user.id,
-                remitent,
-              })
+            if (text && (await isReceiverInputPending(user.id))) {
+              const receiver: PhoneNumber | Address = text.body
+
               try {
-                const validatedRemitent = await addRemitentToPaymentRequest({
+                const validatedReceiver = await addReceiverToPayment({
                   userId: user.id,
-                  remitent,
+                  receiver,
                 })
                 await sendSimpleButtonsMessage(
                   recipientPhone,
-                  `Cuántos USDT deseas enviar a ${validatedRemitent}?`,
+                  `Cuántos USDT deseas enviar a ${validatedReceiver}?`,
                   [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
                 )
                 return
