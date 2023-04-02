@@ -28,8 +28,8 @@ import {
   confirmPaymentRequest,
   getBscScanUrlForAddress,
   getRecipientAddressFromUncompletedPaymentRequest,
-  isUserAwaitingAmountInput,
   isReceiverInputPending,
+  isUserAwaitingAmountInput,
   makePaymentRequest,
   sendUsdtFromWallet,
   updatePaymentRequestToError,
@@ -60,7 +60,7 @@ const handler: VercelApiHandler = async (
       } = data
       const sendMenuButtons = async () => {
         await sendSimpleButtonsMessage(recipientPhone, 'Qué querés hacer?', [
-          { title: 'Consultar dirección', id: 'check_address' },
+          { title: 'Ingresar dinero', id: 'check_address' },
           { title: 'Enviar dinero 💸', id: 'send_money' },
           { title: 'Consultar saldo 🔎', id: 'check_balance' },
         ])
@@ -124,9 +124,10 @@ const handler: VercelApiHandler = async (
 
                 await sendMessageToPhoneNumber(
                   recipientPhone,
-                  `No se pudo realizar el pago 😢, 
-                  ${error}`,
+                  `No se pudo realizar el pago 😢`,
                 )
+
+                await sendMessageToPhoneNumber(recipientPhone, error)
               }
               return
             }
@@ -137,12 +138,17 @@ const handler: VercelApiHandler = async (
             )
             await sendMenuButtons()
           } else {
-            const welcomeMessage = `¡Hola ${recipientName}!, soy tu crypto-bot favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`
-
-            await sendMessageToPhoneNumber(recipientPhone, welcomeMessage)
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              `Hola ${recipientName}! 👋`,
+            )
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              `Soy tu crypto-bot 🤖 favorito.\nTu servicio de billetera digital más seguro, confiable y fácil de usar.`,
+            )
             await sendSimpleButtonsMessage(
               recipientPhone,
-              'Veo que no tienes una billetera asociada a éste número.  Deseas crear una?',
+              'Veo que no tenés una billetera asociada a éste número. Querés crear una?',
               [{ title: 'Crear una billetera', id: 'create_wallet' }],
             )
           }
@@ -169,15 +175,17 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `A quién deseas enviar dinero? Ingresa el número de celular de tu amigo o la dirección de su billetera`,
+                `A quién deseas enviar dinero?`,
+              )
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                `Ingresá el número de celular o la dirección de la billetera de destino`,
               )
               break
             }
             case 'check_balance': {
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                'Consultando tu saldo 🤑',
-              )
+              await sendMessageToPhoneNumber(recipientPhone, 'Cargando ⏳')
+
               const privateKey = await getPrivateKeyByPhoneNumber(
                 recipientPhone,
               )
@@ -186,10 +194,6 @@ const handler: VercelApiHandler = async (
                 privateKey,
               )
 
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                '¡Acá tenés tu saldo!',
-              )
               await sendMessageToPhoneNumber(
                 recipientPhone,
                 `${bnbBalance} BNB`,
@@ -202,16 +206,24 @@ const handler: VercelApiHandler = async (
               break
             }
             case 'check_address': {
+              await sendMessageToPhoneNumber(recipientPhone, 'Cargando ⏳')
               const address = await getAddressByPhoneNumber(recipientPhone)
-              await sendMessageToPhoneNumber(recipientPhone, 'Tu dirección es:')
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                'Para ingresar dinero, tenés que enviarlo a esta dirección:',
+              )
               await sendMessageToPhoneNumber(recipientPhone, address)
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                '(Enviá USDT por red Binance Smart Chain)',
+              )
               await sendMenuButtons()
               break
             }
             case 'create_wallet': {
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                '¡Creando tu billetera! 🔨',
+                'Creando tu billetera! 🔨',
               )
 
               const walletAddress = await createUser(
@@ -221,25 +233,25 @@ const handler: VercelApiHandler = async (
 
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                '¡Tu billetera ha sido creada! 🚀✨, tu dirección es:',
+                'Tu billetera fue creada! 🚀✨\n tu dirección es:',
               )
               await sendSimpleButtonsMessage(recipientPhone, walletAddress, [
                 { title: 'Qué es?', id: 'info_address' },
               ])
-              await sendSimpleButtonsMessage(
-                recipientPhone,
-                'Te comento que para transferir dinero ' +
-                  'tenes que cargar BNB.',
-                [{ title: 'Qué es BNB?', id: 'info_bnb' }],
-              )
+
               break
             }
-            case 'info_address':
-              await sendMessageToPhoneNumber(
+            case 'info_address': {
+              sendSimpleButtonsMessage(
                 recipientPhone,
-                'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.',
+                'Una dirección es como un número de cuenta bancaria que podés usar para recibir dinero de otras personas. En este caso la billetera usa la red Binance Smart Chain, y soporta la criptomoneda USDT. Para hacer transferencias vas a necesitar BNB',
+                [{ title: 'Qué es BNB?', id: 'info_bnb' }],
               )
+
+              await sendMenuButtons()
+
               break
+            }
             case 'info_bnb':
               await sendMessageToPhoneNumber(
                 recipientPhone,
@@ -260,6 +272,7 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 'Cancelaste el envío.',
               )
+
               await sendMenuButtons()
               break
             default:
