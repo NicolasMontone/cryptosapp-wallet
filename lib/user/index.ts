@@ -78,18 +78,18 @@ export async function createUser(
 export async function getUserFromPhoneNumber(
   recipientPhone: string,
 ): Promise<User | null> {
-  // const sanitizedPhoneNumber = recipientPhone
-  //   .replace('+', '')
-  //   .replace(' ', '')
-  //   .replace('-', '')
-  //   .replace('(', '')
-  //   .replace(')', '')
+  const sanitizedPhoneNumber = recipientPhone
+    .replace('+', '')
+    .replace(' ', '')
+    .replace('-', '')
+    .replace('(', '')
+    .replace(')', '')
 
   const { data: users, error } = await supabase
     .from('users')
     .select('*')
     // .eq('phone_number', recipientPhone)
-    .like('phone_number', `%${recipientPhone}%`)
+    .like('phone_number', `%${sanitizedPhoneNumber}%`)
 
   if (error) {
     throw new Error(`Error getting user from phone number ${error}`)
