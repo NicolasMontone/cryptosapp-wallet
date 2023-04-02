@@ -202,10 +202,6 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 `A quién deseas enviar dinero?`,
               )
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                `Ingresá el número de celular o la dirección de la billetera de destino`,
-              )
 
               await sendSimpleButtonsMessage(
                 recipientPhone,
