@@ -1,9 +1,9 @@
 ### Check it out
 
-Our page:
+You can access our landing page:
 https://pybalt.github.io/cryptosapp-landing/
 
-The chatbot:
+Or directly click to communicate with the chatbot:
 https://api.whatsapp.com/send?phone=5491173603358&text=Cuentame
 
 Or you can scan our QR Code!
