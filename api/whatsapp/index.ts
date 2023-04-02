@@ -3,6 +3,7 @@ import type { VercelApiHandler, VercelResponse } from '@vercel/node'
 import axios from 'axios'
 
 import { WhatsappNewMessageEventNotificationRequest } from './types'
+import { sleep } from '../../lib/utils/sleep'
 
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
@@ -42,8 +43,8 @@ const handler: VercelApiHandler = async (
       console.error({ error })
     }
 
-    // wait 1 second
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    // wait 50ms to let the other lambda function invocation to finish
+    await sleep(50)
 
     res.status(200).send('ok')
     return
