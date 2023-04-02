@@ -6,6 +6,7 @@ CryptoSapp is a chatbot which comes to facilitate transactions with a crypto wal
 ## How to use it
 
 As simple as scanning a QR code. We will take care of the rest!
+You can also [follow this link.](https://api.whatsapp.com/send?phone=5491173603358&text=Hola%20CryptoSapp!)
 
 <div align=center>
 	<img style="  display: block;
