@@ -246,7 +246,7 @@ const handler: VercelApiHandler = async (
               await sendMessageToPhoneNumber(recipientPhone, address)
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                '(Enviá USDT por red Binance Smart Chain)',
+                '(Enviá USDT o BNB por red Binance Smart Chain)',
               )
               await sendMenuButtons()
               break
