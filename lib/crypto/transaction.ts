@@ -202,3 +202,6 @@ export async function cancelPaymentRequest(userId: string) {
     .neq('status', 'CANCELLED')
     .neq('status', 'ERROR')
 }
+export function getBscScanUrlForAddress(address: string) {
+  return `https://goto.bscscan.com/address/${address}`
+}
