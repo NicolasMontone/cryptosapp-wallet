@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import { bscUsdtContractAddress } from '.'
 import usdtBEP20 from './abis/usdtBEP20.json'
 
-import { getUserFromPhoneNumber } from 'lib/user'
+import { getAddressByPhoneNumber, getUserFromPhoneNumber } from 'lib/user'
 import { supabase } from '../../lib/supabase'
 
 const quickNodeUrl = process.env.QUICK_NODE_URL
@@ -133,7 +133,23 @@ export async function getRecipientAddressFromUncompletedPaymentRequest(
     throw new Error('No pending payment requests found')
   }
 
-  return pendingPaymentRequest.to
+  const addressOrPhoneNumber = pendingPaymentRequest.to
+
+  const isAddress = ethers.isAddress(addressOrPhoneNumber)
+
+  if (isAddress) {
+    return addressOrPhoneNumber
+  }
+
+  const remitentUser = await getUserFromPhoneNumber(addressOrPhoneNumber)
+
+  if (!remitentUser) {
+    throw new Error('Invalid remitent')
+  }
+
+  const address = await getAddressByPhoneNumber(addressOrPhoneNumber)
+
+  return address
 }
 
 export async function isUserAwaitingAmountInput(userId: string) {
