@@ -86,6 +86,12 @@ export async function getUserFromPhoneNumber(
     error: unknown
   }
 
+  console.log('❇️users', {
+    users,
+    recipientPhone,
+    error,
+  })
+
   if (error) {
     throw new Error(`Error getting user from phone number ${error}`)
   }

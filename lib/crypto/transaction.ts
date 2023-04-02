@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import { bscUsdtContractAddress } from '.'
 import usdtBEP20 from './abis/usdtBEP20.json'
 
-import { getUserFromPhoneNumber } from 'lib/user'
+import { getAddressByPhoneNumber, getUserFromPhoneNumber } from 'lib/user'
 import { supabase } from '../../lib/supabase'
 
 const quickNodeUrl = process.env.QUICK_NODE_URL
@@ -83,7 +83,7 @@ export async function sendUsdtFromWallet({
     // eslint-disable-next-line @typescript-eslint/no-extra-semi
     ;(
       error as Error
-    ).message = `Error sending USDT from wallet: \n toAddress: ${toAddress} \n privateKey: ${privateKey} \n tokenAmount: ${tokenAmount} \n ${
+    ).message = `Error sending USDT from wallet: \n toAddress: ${toAddress}  \n tokenAmount: ${tokenAmount} \n ${
       (error as Error).message
     }`
     throw error
@@ -133,7 +133,23 @@ export async function getRecipientAddressFromUncompletedPaymentRequest(
     throw new Error('No pending payment requests found')
   }
 
-  return pendingPaymentRequest.to
+  const addressOrPhoneNumber = pendingPaymentRequest.to
+
+  const isAddress = ethers.isAddress(addressOrPhoneNumber)
+
+  if (isAddress) {
+    return addressOrPhoneNumber
+  }
+
+  const remitentUser = await getUserFromPhoneNumber(addressOrPhoneNumber)
+
+  if (!remitentUser) {
+    throw new Error('Invalid remitent')
+  }
+
+  const address = await getAddressByPhoneNumber(addressOrPhoneNumber)
+
+  return address
 }
 
 export async function isUserAwaitingAmountInput(userId: string) {
@@ -156,7 +172,9 @@ export async function addRemitentToPaymentRequest({
 
   if (!isAddress && !remitentUser) {
     throw new Error(
-      'Invalid remitent, must be a valid address or phone number of a registered user',
+      `Invalid remitent, must be a valid address or phone number of a registered user ${JSON.stringify(
+        remitent,
+      )}`,
     )
   }
 
@@ -199,4 +217,7 @@ export async function cancelPaymentRequest(userId: string) {
     .neq('status', 'CONFIRMED')
     .neq('status', 'CANCELLED')
     .neq('status', 'ERROR')
+}
+export function getBscScanUrlForAddress(address: string) {
+  return `https://goto.bscscan.com/address/${address}`
 }

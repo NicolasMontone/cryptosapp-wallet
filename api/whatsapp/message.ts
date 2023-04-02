@@ -23,9 +23,10 @@ import { getAccountBalances } from 'lib/crypto'
 import {
   Address,
   PhoneNumber,
-  confirmPaymentRequest,
   addRemitentToPaymentRequest,
   cancelPaymentRequest,
+  confirmPaymentRequest,
+  getBscScanUrlForAddress,
   getRecipientAddressFromUncompletedPaymentRequest,
   isUserAwaitingAmountInput,
   isUserAwaitingRemitentInput,
@@ -71,20 +72,20 @@ const handler: VercelApiHandler = async (
             if (text && (await isUserAwaitingRemitentInput(user.id))) {
               const remitent: PhoneNumber | Address = text.body
               try {
-                const remitentSuccess = await addRemitentToPaymentRequest({
+                const validatedRemitent = await addRemitentToPaymentRequest({
                   userId: user.id,
                   remitent,
                 })
                 await sendSimpleButtonsMessage(
                   recipientPhone,
-                  `Cuántos USDT deseas enviar a ${remitentSuccess}?`,
+                  `Cuántos USDT deseas enviar a ${validatedRemitent}?`,
                   [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
                 )
                 return
-              } catch {
+              } catch (error) {
                 await sendSimpleButtonsMessage(
                   recipientPhone,
-                  `El valor no es válido, fijate que cumpla con el formato de dirección o que el número de teléfono tenga cuenta con Cryptosapp`,
+                  `El valor no es válido, fijate que cumpla con el formato de dirección o que el número de teléfono tenga cuenta con Cryptosapp \n ${error}`,
                   [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
                 )
               }
@@ -106,15 +107,23 @@ const handler: VercelApiHandler = async (
 
                 await confirmPaymentRequest({ userId: user.id, amount })
 
+                const address = await getAddressByPhoneNumber(recipientPhone)
+
                 await sendMessageToPhoneNumber(
                   recipientPhone,
-                  'Pago exitoso! 🎉',
+                  'Pago exitoso! 🎉 Para mas informacion: 👇👇👇 ',
                 )
+
+                const bscScanUrl = getBscScanUrlForAddress(address)
+
+                await sendMessageToPhoneNumber(recipientPhone, bscScanUrl)
+
                 return
-              } catch {
+              } catch (error) {
                 await sendMessageToPhoneNumber(
                   recipientPhone,
-                  'No se pudo realizar el pago 😢',
+                  `No se pudo realizar el pago 😢, 
+                  ${error}`,
                 )
               }
             }
