@@ -150,114 +150,110 @@ const handler: VercelApiHandler = async (
 
           const user = await getUserFromPhoneNumber(recipientPhone)
 
-          if (!user) {
-            await sendSimpleButtonsMessage(
-              recipientPhone,
-              `No tienes una billetera asociada a éste número. Deseas crear una?`,
-              [{ title: 'Crear una billetera', id: 'create_wallet' }],
-            )
-            return
-          }
+          if (user) {
+            switch (button_id) {
+              case 'send_money': {
+                const { id } = user
 
-          switch (button_id) {
-            case 'send_money': {
-              const { id } = user
+                await makePaymentRequest({
+                  amount: null,
+                  fromUserId: id,
+                  to: null,
+                })
 
-              await makePaymentRequest({
-                amount: null,
-                fromUserId: id,
-                to: null,
-              })
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  `A quién deseas enviar dinero? Ingresa el número de celular de tu amigo o la dirección de su billetera`,
+                )
+                break
+              }
+              case 'check_balance': {
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  'Consultando tu saldo 🤑',
+                )
+                const privateKey = await getPrivateKeyByPhoneNumber(
+                  recipientPhone,
+                )
 
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                `A quién deseas enviar dinero? Ingresa el número de celular de tu amigo o la dirección de su billetera`,
-              )
-              break
+                const { bnbBalance, usdtBalance } = await getAccountBalances(
+                  privateKey,
+                )
+
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  '¡Acá tenés tu saldo!',
+                )
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  `${bnbBalance} BNB`,
+                )
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  `${usdtBalance} USDT`,
+                )
+                break
+              }
+              case 'check_address': {
+                const address = await getAddressByPhoneNumber(recipientPhone)
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  'Tu dirección es:',
+                )
+                await sendMessageToPhoneNumber(recipientPhone, address)
+                await sendMenuButtons()
+                break
+              }
+              case 'create_wallet': {
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  '¡Creando tu billetera! 🔨',
+                )
+
+                const walletAddress = await createUser(
+                  recipientPhone,
+                  recipientName,
+                )
+
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  '¡Tu billetera ha sido creada! 🚀✨, tu dirección es:',
+                )
+                await sendSimpleButtonsMessage(recipientPhone, walletAddress, [
+                  { title: 'Qué es una dirección?', id: 'info_address' },
+                ])
+                await sendSimpleButtonsMessage(
+                  recipientPhone,
+                  'Te comento que para transferir dinero ' +
+                    'tenes que cargar BNB.',
+                  [{ title: 'Qué es BNB?', id: 'info_bnb' }],
+                )
+                break
+              }
+              case 'info_address':
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.',
+                )
+                break
+              case 'info_bnb':
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  'El BNB es el combustible que necesita la blockchain para poner en funcionamiento la red.',
+                )
+                await sendMenuButtons()
+                break
+              case 'cancel_send_money':
+                await cancelPaymentRequest(user.id)
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  'Cancelaste el envío.',
+                )
+                await sendMenuButtons()
+                break
+              default:
+                break
             }
-            case 'check_balance': {
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                'Consultando tu saldo 🤑',
-              )
-              const privateKey = await getPrivateKeyByPhoneNumber(
-                recipientPhone,
-              )
-
-              const { bnbBalance, usdtBalance } = await getAccountBalances(
-                privateKey,
-              )
-
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                '¡Acá tenés tu saldo!',
-              )
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                `${bnbBalance} BNB`,
-              )
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                `${usdtBalance} USDT`,
-              )
-              break
-            }
-            case 'check_address': {
-              const address = await getAddressByPhoneNumber(recipientPhone)
-              await sendMessageToPhoneNumber(recipientPhone, 'Tu dirección es:')
-              await sendMessageToPhoneNumber(recipientPhone, address)
-              await sendMenuButtons()
-              break
-            }
-            case 'create_wallet': {
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                '¡Creando tu billetera! 🔨',
-              )
-
-              const walletAddress = await createUser(
-                recipientPhone,
-                recipientName,
-              )
-
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                '¡Tu billetera ha sido creada! 🚀✨, tu dirección es:',
-              )
-              await sendSimpleButtonsMessage(recipientPhone, walletAddress, [
-                { title: 'Qué es una dirección?', id: 'info_address' },
-              ])
-              await sendSimpleButtonsMessage(
-                recipientPhone,
-                'Te comento que para transferir dinero ' +
-                  'tenes que cargar BNB.',
-                [{ title: 'Qué es BNB?', id: 'info_bnb' }],
-              )
-              break
-            }
-            case 'info_address':
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                'Una dirección es como un número de cuenta bancaria que puedes usar para recibir dinero de otras personas.',
-              )
-              break
-            case 'info_bnb':
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                'El BNB es el combustible que necesita la blockchain para poner en funcionamiento la red.',
-              )
-              await sendMenuButtons()
-              break
-            case 'cancel_send_money':
-              await cancelPaymentRequest(user.id)
-              await sendMessageToPhoneNumber(
-                recipientPhone,
-                'Cancelaste el envío.',
-              )
-              await sendMenuButtons()
-              break
-            default:
-              break
           }
         }
       } catch (error) {
