@@ -7,7 +7,7 @@ CryptoSapp is a chatbot which comes to facilitate transactions with a crypto wal
 
 As simple as scanning a QR code. We will take care of the rest!
 
-<div style="text-align:center">
+<div align=center>
 	<img style="  display: block;
   margin-left: 25%;
   margin-right: 25%;
@@ -21,6 +21,6 @@ Once the QR is scanned, you will be redirected to Whatsapp with our chatbot, whe
 A brief example of the capabilities of our bot:
 
 
-<div style="text-align:center;">
+<div align=center>
 	<img width="35%" src="https://user-images.githubusercontent.com/96897286/229337828-58f3af0b-6e3b-49d2-b8f0-670c39699402.jpg">
 </div>
