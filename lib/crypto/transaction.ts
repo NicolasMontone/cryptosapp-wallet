@@ -178,6 +178,13 @@ export async function addReceiverToPayment({
   userId: string
   receiver: string
 }) {
+  await sendMessageToPhoneNumber(
+    receiver,
+    `here!!!!!! ${JSON.stringify({
+      userId,
+      receiver,
+    })}`,
+  )
   const isAddress = ethers.isAddress(receiver)
   await sendMessageToPhoneNumber(
     receiver,
