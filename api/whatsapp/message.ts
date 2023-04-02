@@ -315,7 +315,10 @@ const handler: VercelApiHandler = async (
         console.error({ error })
         await sendMessageToPhoneNumber(
           recipientPhone,
-          `🔴 Ha ocurrido un error: ${(error as Error).message}`,
+          `🔴 Ha ocurrido un error: ${JSON.stringify(
+            error,
+            Object.getOwnPropertyNames(error),
+          )}`,
         )
       }
 
