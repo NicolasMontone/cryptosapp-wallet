@@ -23,9 +23,9 @@ import { getAccountBalances } from 'lib/crypto'
 import {
   Address,
   PhoneNumber,
-  confirmPaymentRequest,
   addRemitentToPaymentRequest,
   cancelPaymentRequest,
+  confirmPaymentRequest,
   getRecipientAddressFromUncompletedPaymentRequest,
   isUserAwaitingAmountInput,
   isUserAwaitingRemitentInput,
@@ -81,10 +81,10 @@ const handler: VercelApiHandler = async (
                   [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
                 )
                 return
-              } catch {
+              } catch (error) {
                 await sendSimpleButtonsMessage(
                   recipientPhone,
-                  `El valor no es válido, fijate que cumpla con el formato de dirección o que el número de teléfono tenga cuenta con Cryptosapp`,
+                  `El valor no es válido, fijate que cumpla con el formato de dirección o que el número de teléfono tenga cuenta con Cryptosapp \n ${error}`,
                   [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
                 )
               }
