@@ -31,6 +31,7 @@ import {
   isUserAwaitingRemitentInput,
   makePaymentRequest,
   sendUsdtFromWallet,
+  getBscScanUrlForAddress
 } from '../../lib/crypto/transaction'
 
 const handler: VercelApiHandler = async (
@@ -105,11 +106,17 @@ const handler: VercelApiHandler = async (
                 })
 
                 await confirmPaymentRequest({ userId: user.id, amount })
-
+                const [address, ] = await Promise.all([
+                  getAddressByPhoneNumber(recipientPhone),
+                  sendMessageToPhoneNumber(
+                    recipientPhone,
+                    'Pago exitoso! 🎉 Para mas informacion: 👇👇👇 ',
+                  ),
+                ])
+                const bscScanUrl = getBscScanUrlForAddress(address)
                 await sendMessageToPhoneNumber(
                   recipientPhone,
-                  'Pago exitoso! 🎉',
-                )
+                  bscScanUrl)
                 return
               } catch (error) {
                 await sendMessageToPhoneNumber(
