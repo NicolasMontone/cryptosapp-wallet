@@ -78,7 +78,12 @@ export async function createUser(
 export async function getUserFromPhoneNumber(
   recipientPhone: string,
 ): Promise<User | null> {
-  const sanitizedPhoneNumber = recipientPhone.replace('+', '').replace(' ', '')
+  const sanitizedPhoneNumber = recipientPhone
+    .replace('+', '')
+    .replace(' ', '')
+    .replace('-', '')
+    .replace('(', '')
+    .replace(')', '')
 
   const { data: users, error } = await supabase
     .from('users')
