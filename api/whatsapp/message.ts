@@ -70,12 +70,16 @@ const handler: VercelApiHandler = async (
           const user = await getUserFromPhoneNumber(recipientPhone)
 
           if (user) {
-            console.log('TEST', {
-              user,
-              text,
-              isRemitentAddressPending: await isRemitentAddressPending(user.id),
-            })
-
+            await sendMessageToPhoneNumber(
+              recipientPhone,
+              JSON.stringify({
+                user,
+                text,
+                isRemitentAddressPending: await isRemitentAddressPending(
+                  user.id,
+                ),
+              }),
+            )
             if (text && (await isRemitentAddressPending(user.id))) {
               const remitent: PhoneNumber | Address = text.body
               console.log('hasta aca', {
