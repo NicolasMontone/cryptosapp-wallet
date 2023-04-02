@@ -135,7 +135,7 @@ const handler: VercelApiHandler = async (
 
                 await sendMessageToPhoneNumber(
                   recipientPhone,
-                  'Pago exitoso! 🎉 Para mas informacion: 👇👇👇 ',
+                  'Pago exitoso! 🎉 Para más información: 👇👇👇 ',
                 )
 
                 if (receiverUser) {
