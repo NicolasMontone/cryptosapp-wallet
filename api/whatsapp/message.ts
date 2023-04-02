@@ -197,6 +197,7 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 `${usdtBalance} USDT`,
               )
+              await sendMenuButtons()
               break
             }
             case 'check_address': {
@@ -242,6 +243,10 @@ const handler: VercelApiHandler = async (
               await sendMessageToPhoneNumber(
                 recipientPhone,
                 'El BNB es el combustible que necesita la blockchain para poner en funcionamiento la red.',
+              )
+              await sendMessageToPhoneNumber(
+                recipientPhone,
+                'Para mas informacion mira este enlace:\nhttps://academy.binance.com/es/articles/what-is-bnb',
               )
               await sendMenuButtons()
               break

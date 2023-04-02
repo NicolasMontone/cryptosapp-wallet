@@ -170,6 +170,7 @@ export async function addRemitentToPaymentRequest({
   const isAddress = ethers.isAddress(remitent)
   const remitentUser = await getUserFromPhoneNumber(remitent)
 
+  console.log('###############################', userId)
   if (!isAddress && !remitentUser) {
     throw new Error(
       `Invalid remitent, must be a valid address or phone number of a registered user ${JSON.stringify(
