@@ -198,7 +198,7 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 `${usdtBalance} USDT`,
               )
-              break
+              await sendMenuButtons()
             }
             case 'check_address': {
               const address = await getAddressByPhoneNumber(recipientPhone)
