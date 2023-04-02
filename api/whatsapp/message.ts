@@ -118,8 +118,6 @@ const handler: VercelApiHandler = async (
                 const bscScanUrl = getBscScanUrlForAddress(address)
 
                 await sendMessageToPhoneNumber(recipientPhone, bscScanUrl)
-
-                return
               } catch (error) {
                 await updatePaymentRequestToError(user.id)
 
@@ -129,6 +127,7 @@ const handler: VercelApiHandler = async (
                   ${error}`,
                 )
               }
+              return
             }
 
             await sendMessageToPhoneNumber(
