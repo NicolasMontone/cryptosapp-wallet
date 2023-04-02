@@ -67,9 +67,7 @@ const handler: VercelApiHandler = async (
           text,
         },
       } = data
-      const sendMenuButtons = async () => {
-        sendMenuButtonsTo(recipientPhone)
-      }
+
       try {
         if (typeOfMessage === 'text_message') {
           const user = await getUserFromPhoneNumber(recipientPhone)
@@ -158,7 +156,7 @@ const handler: VercelApiHandler = async (
               recipientPhone,
               `Hola de nuevo${recipientName ? ` ${recipientName}` : ''}! 👋`,
             )
-            await sendMenuButtons()
+            await sendMenuButtonsTo(recipientPhone)
           } else {
             await sendMessageToPhoneNumber(
               recipientPhone,
@@ -232,7 +230,8 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 `${usdtBalance} USDT`,
               )
-              await sendMenuButtons()
+              await sendMenuButtonsTo(recipientPhone)
+
               break
             }
             case 'check_address': {
@@ -247,7 +246,8 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 '(Enviá USDT o BNB por red Binance Smart Chain)',
               )
-              await sendMenuButtons()
+              await sendMenuButtonsTo(recipientPhone)
+
               break
             }
             case 'create_wallet': {
@@ -269,7 +269,7 @@ const handler: VercelApiHandler = async (
                 { title: 'Qué es?', id: 'info_address' },
               ])
 
-              await sendMenuButtons()
+              await sendMenuButtonsTo(recipientPhone)
 
               break
             }
@@ -280,7 +280,7 @@ const handler: VercelApiHandler = async (
                 [{ title: 'Qué es BNB?', id: 'info_bnb' }],
               )
 
-              await sendMenuButtons()
+              await sendMenuButtonsTo(recipientPhone)
 
               break
             }
@@ -293,7 +293,8 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 'Para mas informacion mira este enlace:\nhttps://academy.binance.com/es/articles/what-is-bnb',
               )
-              await sendMenuButtons()
+              await sendMenuButtonsTo(recipientPhone)
+
               break
             case 'cancel_send_money':
               if (!user) {
@@ -305,7 +306,8 @@ const handler: VercelApiHandler = async (
                 'Cancelaste el envío.',
               )
 
-              await sendMenuButtons()
+              await sendMenuButtonsTo(recipientPhone)
+
               break
             default:
               break
