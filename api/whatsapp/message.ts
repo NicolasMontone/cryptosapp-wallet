@@ -175,11 +175,11 @@ const handler: VercelApiHandler = async (
               )
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `BNB: ${bnbBalance} BNB`,
+                `${bnbBalance} BNB`,
               )
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                `USDT: ${usdtBalance} USDT`,
+                `${usdtBalance} USDT`,
               )
 
               break
