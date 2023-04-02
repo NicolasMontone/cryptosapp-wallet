@@ -243,7 +243,7 @@ const handler: VercelApiHandler = async (
               await sendMessageToPhoneNumber(recipientPhone, address)
               await sendMessageToPhoneNumber(
                 recipientPhone,
-                '(Enviá USDT o BNB por red Binance Smart Chain)',
+                '(Enviá USDT por red Binance Smart Chain)',
               )
               await sendMenuButtons()
               break
@@ -313,7 +313,10 @@ const handler: VercelApiHandler = async (
         console.error({ error })
         await sendMessageToPhoneNumber(
           recipientPhone,
-          `🔴 Ha ocurrido un error: ${(error as Error).message}`,
+          `🔴 Ha ocurrido un error: ${JSON.stringify(
+            error,
+            Object.getOwnPropertyNames(error),
+          )}`,
         )
       }
 
