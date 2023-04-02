@@ -23,7 +23,7 @@ import { getAccountBalances } from 'lib/crypto'
 import {
   Address,
   PhoneNumber,
-  addAmountToPaymentRequest,
+  confirmPaymentRequest,
   addRemitentToPaymentRequest,
   cancelPaymentRequest,
   getRecipientAddressFromUncompletedPaymentRequest,
@@ -77,7 +77,7 @@ const handler: VercelApiHandler = async (
                 })
                 await sendSimpleButtonsMessage(
                   recipientPhone,
-                  `Cuánto dinero deseas enviar a ${remitentSuccess}?`,
+                  `Cuántos USDT deseas enviar a ${remitentSuccess}?`,
                   [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
                 )
                 return
@@ -104,7 +104,7 @@ const handler: VercelApiHandler = async (
                     ),
                 })
 
-                await addAmountToPaymentRequest({ userId: user.id, amount })
+                await confirmPaymentRequest({ userId: user.id, amount })
 
                 await sendMessageToPhoneNumber(
                   recipientPhone,
