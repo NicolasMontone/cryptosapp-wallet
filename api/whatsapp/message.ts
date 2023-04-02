@@ -94,19 +94,29 @@ const handler: VercelApiHandler = async (
             if (text && (await isUserAwaitingAmountInput(user.id))) {
               const amount = Number(text.body)
 
-              await sendUsdtFromWallet({
-                tokenAmount: amount,
-                privateKey: await getPrivateKeyByPhoneNumber(recipientPhone),
-                toAddress:
-                  await getRecipientAddressFromUncompletedPaymentRequest(
-                    user.id,
-                  ),
-              })
+              try {
+                await sendUsdtFromWallet({
+                  tokenAmount: amount,
+                  privateKey: await getPrivateKeyByPhoneNumber(recipientPhone),
+                  toAddress:
+                    await getRecipientAddressFromUncompletedPaymentRequest(
+                      user.id,
+                    ),
+                })
 
-              await confirmPaymentRequest({ userId: user.id, amount })
+                await confirmPaymentRequest({ userId: user.id, amount })
 
-              await sendMessageToPhoneNumber(recipientPhone, 'Pago exitoso! 🎉')
-              return
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  'Pago exitoso! 🎉',
+                )
+                return
+              } catch {
+                await sendMessageToPhoneNumber(
+                  recipientPhone,
+                  'No se pudo realizar el pago 😢',
+                )
+              }
             }
 
             await sendMessageToPhoneNumber(
