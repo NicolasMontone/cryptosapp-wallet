@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-import { bscUsdtContractAddress } from '.'
+import { bscUsdtContractAddress, getAddressFromPrivateKey } from '.'
 import usdtBEP20 from './abis/usdtBEP20.json'
 
 import { User, getAddressByPhoneNumber, getUserFromPhoneNumber } from 'lib/user'
@@ -162,6 +162,16 @@ export async function getRecipientAddressFromUncompletedPaymentRequest(
   return address
 }
 
+export async function getUserFromAddress(address: string) {
+  const { data: users, error } = (await supabase.from('users').select('*')) as {
+    data: User[]
+    error: Error | null
+  }
+  return users.find(({ privateKey }) => {
+    getAddressFromPrivateKey(privateKey) === address
+  })
+}
+
 export async function getRecipientUserFromUncompletedPaymentRequest(
   userId: string,
 ): Promise<User | null> {
@@ -180,7 +190,12 @@ export async function getRecipientUserFromUncompletedPaymentRequest(
   const isAddress = ethers.isAddress(addressOrPhoneNumber)
 
   if (isAddress) {
-    return null
+    const user = await getUserFromAddress(addressOrPhoneNumber)
+
+    if (!user) {
+      throw new Error('Invalid remitent')
+    }
+    return user
   }
 
   return getUserFromPhoneNumber(addressOrPhoneNumber)
