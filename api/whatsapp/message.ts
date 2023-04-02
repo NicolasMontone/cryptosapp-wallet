@@ -132,12 +132,9 @@ const handler: VercelApiHandler = async (
                   'Pago exitoso! 🎉 Para mas informacion: 👇👇👇 ',
                 )
 
-                const usdtBalance = (await getAccountBalances(senderPrivateKey))
-                  .usdtBalance
-
                 await sendMessageToPhoneNumber(
                   recipientUser.phoneNumer,
-                  `Recibiste ${amount} USDT de ${user.name} 🌟. Tu saldo actual es ${usdtBalance} USDT`,
+                  `Recibiste ${amount} USDT de ${user.name} 🌟`,
                 )
                 await sendMenuButtonsTo(recipientUser.phoneNumer)
 
