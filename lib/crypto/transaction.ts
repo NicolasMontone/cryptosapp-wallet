@@ -178,31 +178,8 @@ export async function addReceiverToPayment({
   userId: string
   receiver: string
 }) {
-  console.log('#######################', {
-    receiver,
-    userId,
-  })
-  await sendMessageToPhoneNumber(
-    receiver,
-    `here!!!!!! ${JSON.stringify({
-      userId,
-      receiver,
-    })}`,
-  )
   const isAddress = ethers.isAddress(receiver)
-  await sendMessageToPhoneNumber(
-    receiver,
-    `here!!! ${JSON.stringify({
-      isAddress,
-      userId,
-      receiver,
-    })}`,
-  )
   const receiverUser = await getUserFromPhoneNumber(receiver)
-  await sendMessageToPhoneNumber(
-    receiver,
-    `here!! ${JSON.stringify(receiverUser)}`,
-  )
   if (!isAddress && !receiverUser) {
     throw new Error(
       `Invalid remitent, must be a valid address or phone number of a registered user ${JSON.stringify(
@@ -211,8 +188,7 @@ export async function addReceiverToPayment({
     )
   }
 
-  await sendMessageToPhoneNumber(receiver, `${JSON.stringify(receiverUser)}`)
-  const test = await supabase
+  await supabase
     .from('payment_requests')
     .update({
       to: receiver,
@@ -220,8 +196,6 @@ export async function addReceiverToPayment({
     })
     .eq('from_user_id', userId)
     .eq('status', 'ADDRESS_PENDING')
-
-  await sendMessageToPhoneNumber(receiver, `${JSON.stringify(test)}`)
 
   return receiverUser?.name || receiver
 }

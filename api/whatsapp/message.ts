@@ -74,13 +74,6 @@ const handler: VercelApiHandler = async (
               const receiver: PhoneNumber | Address = text.body
 
               try {
-                await sendMessageToPhoneNumber(
-                  recipientPhone,
-                  JSON.stringify({
-                    receiver,
-                    user,
-                  }),
-                )
                 const validatedReceiver = await addReceiverToPayment({
                   userId: user.id,
                   receiver,
