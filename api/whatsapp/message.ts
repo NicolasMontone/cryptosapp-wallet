@@ -135,11 +135,11 @@ const handler: VercelApiHandler = async (
                 const usdtBalance = (await getAccountBalances(senderPrivateKey))
                   .usdtBalance
 
-                sendMessageToPhoneNumber(
+                await sendMessageToPhoneNumber(
                   recipientUser.phoneNumer,
                   `Recibiste ${amount} USDT de ${user.name} 🌟. Tu saldo actual es ${usdtBalance} USDT`,
                 )
-                sendMenuButtonsTo(recipientUser.phoneNumer)
+                await sendMenuButtonsTo(recipientUser.phoneNumer)
 
                 const bscScanUrl = getBscScanUrlForAddress(address)
 
@@ -206,6 +206,18 @@ const handler: VercelApiHandler = async (
                 recipientPhone,
                 `Ingresá el número de celular o la dirección de la billetera de destino`,
               )
+
+              await sendSimpleButtonsMessage(
+                recipientPhone,
+                `Ingresá el número de celular o la dirección de la billetera de destino`,
+                [
+                  {
+                    title: 'Cancelar',
+                    id: 'cancel_send_money',
+                  },
+                ],
+              )
+
               break
             }
             case 'check_balance': {
