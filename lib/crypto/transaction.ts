@@ -172,7 +172,7 @@ export async function addRemitentToPaymentRequest({
   return remitentUser?.name || isAddress
 }
 
-export async function addAmountToPaymentRequest({
+export async function confirmPaymentRequest({
   userId,
   amount,
 }: {
