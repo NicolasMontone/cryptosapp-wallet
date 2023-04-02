@@ -6,6 +6,17 @@ Or you can scan our QR Code!
 
 <img src="https://user-images.githubusercontent.com/96897286/229319909-27b75d32-23f9-4a27-8c35-8715b45c29f2.png" height = "300px"/>
 
+### Run it in local
+
+You should have installed `vercel-cli`
+
+- Setup you project in vercel adding the env variables of the `.env.example`
+- run 
+```bash
+npm run start
+```
+and this will populate your env variables and deploy a lambda function poiting to your local environment. 
+
 ### Endpoints
 
 this project is composed of lambdas deployed in Vercel, with the following endpoints
