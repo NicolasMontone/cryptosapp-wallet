@@ -72,6 +72,10 @@ const handler: VercelApiHandler = async (
           if (user) {
             if (text && (await isUserAwaitingRemitentInput(user.id))) {
               const remitent: PhoneNumber | Address = text.body
+              console.log('hasta aca', {
+                userId: user.id,
+                remitent,
+              })
               try {
                 const validatedRemitent = await addRemitentToPaymentRequest({
                   userId: user.id,
@@ -118,8 +122,6 @@ const handler: VercelApiHandler = async (
                 const bscScanUrl = getBscScanUrlForAddress(address)
 
                 await sendMessageToPhoneNumber(recipientPhone, bscScanUrl)
-
-                return
               } catch (error) {
                 await updatePaymentRequestToError(user.id)
 
@@ -129,6 +131,7 @@ const handler: VercelApiHandler = async (
                   ${error}`,
                 )
               }
+              return
             }
 
             await sendMessageToPhoneNumber(

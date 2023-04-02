@@ -80,12 +80,22 @@ export async function sendUsdtFromWallet({
     const transferResult = await contract.transfer(toAddress, numberOfTokens)
     return transferResult
   } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/no-extra-semi
-    ;(
-      error as Error
-    ).message = `Error sending USDT from wallet: \n toAddress: ${toAddress}  \n tokenAmount: ${tokenAmount} \n ${
-      (error as Error).message
-    }`
+    const isInsufficientFunds = error.message.includes(
+      'transfer amount exceeds balance',
+    )
+
+    if (isInsufficientFunds) {
+      throw new Error('insufficient funds for gas')
+    }
+
+    const isInsufficientGas = error.message.includes(
+      'insufficient funds for gas',
+    )
+
+    if (isInsufficientGas) {
+      throw new Error('No tenés suficiente BNB para pagar el gas')
+    }
+
     throw error
   }
 }
@@ -178,7 +188,7 @@ export async function addRemitentToPaymentRequest({
       )}`,
     )
   }
-
+  // UPDATE FROM "payment_requests" SET "to" = '0x8f9 WHERE "from_user_id" = 'auth0|60c1c1f1b0c3b4006b8b0c1c' AND "status" = 'ADDRESS_PENDING'
   await supabase
     .from('payment_requests')
     .update({
