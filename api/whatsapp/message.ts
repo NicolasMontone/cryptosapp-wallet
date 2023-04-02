@@ -28,6 +28,7 @@ import {
   confirmPaymentRequest,
   getBscScanUrlForAddress,
   getRecipientAddressFromUncompletedPaymentRequest,
+  getRecipientUserFromUncompletedPaymentRequest,
   isReceiverInputPending,
   isUserAwaitingAmountInput,
   makePaymentRequest,
@@ -98,9 +99,20 @@ const handler: VercelApiHandler = async (
               const amount = Number(text.body)
 
               try {
+                const recipientUser =
+                  await getRecipientUserFromUncompletedPaymentRequest(user.id)
+
+                if (!recipientUser) {
+                  throw new Error('No se pudo encontrar el usuario')
+                }
+
+                const senderPrivateKey = await getPrivateKeyByPhoneNumber(
+                  recipientPhone,
+                )
+
                 await sendUsdtFromWallet({
                   tokenAmount: amount,
-                  privateKey: await getPrivateKeyByPhoneNumber(recipientPhone),
+                  privateKey: senderPrivateKey,
                   toAddress:
                     await getRecipientAddressFromUncompletedPaymentRequest(
                       user.id,
@@ -114,6 +126,14 @@ const handler: VercelApiHandler = async (
                 await sendMessageToPhoneNumber(
                   recipientPhone,
                   'Pago exitoso! 🎉 Para mas informacion: 👇👇👇 ',
+                )
+
+                const usdtBalance = (await getAccountBalances(senderPrivateKey))
+                  .usdtBalance
+
+                sendMessageToPhoneNumber(
+                  recipientUser.phoneNumer,
+                  `Recibiste ${amount} USDT de ${user.name}. Tu saldo actual es ${usdtBalance} USDT`,
                 )
 
                 const bscScanUrl = getBscScanUrlForAddress(address)

@@ -2,7 +2,7 @@ import { supabase } from '../supabase'
 
 import { buildPrivateKey, getAddressFromPrivateKey } from '../crypto'
 
-type User = {
+export type User = {
   privateKey: string
   id: string
   createdAt: string
