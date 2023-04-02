@@ -10,14 +10,6 @@ export type User = {
   name: string
 }
 
-type UserResponse = {
-  id: string
-  created_at: string
-  phone_number: string
-  name: string
-  private_key: string
-}
-
 export async function isUserRegistered(
   recipientPhone: string,
 ): Promise<boolean> {

@@ -104,10 +104,6 @@ const handler: VercelApiHandler = async (
                 const receiverUser =
                   await getRecipientUserFromUncompletedPaymentRequest(user.id)
 
-                if (!receiverUser) {
-                  throw new Error('No se pudo encontrar el usuario')
-                }
-
                 const senderPrivateKey = await getPrivateKeyByPhoneNumber(
                   recipientPhone,
                 )
@@ -130,11 +126,13 @@ const handler: VercelApiHandler = async (
                   'Pago exitoso! 🎉 Para mas informacion: 👇👇👇 ',
                 )
 
-                await sendMessageToPhoneNumber(
-                  receiverUser.phoneNumer,
-                  `Recibiste ${amount} USDT de ${user.name} 🌟`,
-                )
-                await sendMenuButtonsTo(receiverUser.phoneNumer)
+                if (receiverUser) {
+                  await sendMessageToPhoneNumber(
+                    receiverUser.phoneNumer,
+                    `Recibiste ${amount} USDT de ${user.name} 🌟`,
+                  )
+                  await sendMenuButtonsTo(receiverUser.phoneNumer)
+                }
 
                 const bscScanUrl = getBscScanUrlForAddress(address)
 
