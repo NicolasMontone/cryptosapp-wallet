@@ -111,10 +111,11 @@ const handler: VercelApiHandler = async (
                   'Pago exitoso! 🎉',
                 )
                 return
-              } catch {
+              } catch (error) {
                 await sendMessageToPhoneNumber(
                   recipientPhone,
-                  'No se pudo realizar el pago 😢',
+                  `No se pudo realizar el pago 😢, 
+                  ${error}`,
                 )
               }
             }

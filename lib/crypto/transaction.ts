@@ -83,7 +83,7 @@ export async function sendUsdtFromWallet({
     // eslint-disable-next-line @typescript-eslint/no-extra-semi
     ;(
       error as Error
-    ).message = `Error sending USDT from wallet: \n toAddress: ${toAddress} \n privateKey: ${privateKey} \n tokenAmount: ${tokenAmount} \n ${
+    ).message = `Error sending USDT from wallet: \n toAddress: ${toAddress}  \n tokenAmount: ${tokenAmount} \n ${
       (error as Error).message
     }`
     throw error
