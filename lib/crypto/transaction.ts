@@ -126,7 +126,7 @@ export async function getRecipientAddressFromUncompletedPaymentRequest(
   const paymentRequests = await getUserPaymentRequests(userId)
 
   const pendingPaymentRequest = paymentRequests.find(
-    (paymentRequest) => paymentRequest.status === 'ADDRESS_PENDING',
+    (paymentRequest) => paymentRequest.status === 'AMOUNT_PENDING',
   )
 
   if (!pendingPaymentRequest) {
