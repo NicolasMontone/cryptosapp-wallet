@@ -180,7 +180,7 @@ export async function addReceiverToPayment({
 }) {
   const isAddress = ethers.isAddress(receiver)
   const receiverUser = await getUserFromPhoneNumber(receiver)
-
+  await sendMessageToPhoneNumber(receiver, `here!! ${JSON.stringify(receiverUser)}`)
   if (!isAddress && !receiverUser) {
     throw new Error(
       `Invalid remitent, must be a valid address or phone number of a registered user ${JSON.stringify(
