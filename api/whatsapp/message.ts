@@ -133,7 +133,7 @@ const handler: VercelApiHandler = async (
 
                 sendMessageToPhoneNumber(
                   recipientUser.phoneNumer,
-                  `Recibiste ${amount} USDT de ${user.name}. Tu saldo actual es ${usdtBalance} USDT`,
+                  `Recibiste ${amount} USDT de ${user.name} 🌟. Tu saldo actual es ${usdtBalance} USDT`,
                 )
 
                 const bscScanUrl = getBscScanUrlForAddress(address)
