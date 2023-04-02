@@ -150,17 +150,12 @@ const handler: VercelApiHandler = async (
 
           const user = await getUserFromPhoneNumber(recipientPhone)
 
-          if (!user) {
-            await sendSimpleButtonsMessage(
-              recipientPhone,
-              `No tienes una billetera asociada a éste número. Deseas crear una?`,
-              [{ title: 'Crear una billetera', id: 'create_wallet' }],
-            )
-            return
-          }
-
           switch (button_id) {
             case 'send_money': {
+              if (!user) {
+                throw new Error('Inesperadamente no se encontró el usuario')
+              }
+
               const { id } = user
 
               await makePaymentRequest({
@@ -249,6 +244,9 @@ const handler: VercelApiHandler = async (
               await sendMenuButtons()
               break
             case 'cancel_send_money':
+              if (!user) {
+                throw new Error('Inesperadamente no se encontró el usuario')
+              }
               await cancelPaymentRequest(user.id)
               await sendMessageToPhoneNumber(
                 recipientPhone,
