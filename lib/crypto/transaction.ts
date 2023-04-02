@@ -221,3 +221,13 @@ export async function cancelPaymentRequest(userId: string) {
 export function getBscScanUrlForAddress(address: string) {
   return `https://goto.bscscan.com/address/${address}`
 }
+
+export async function updatePaymentRequestToError(userId: string) {
+  await supabase
+    .from('payment_requests')
+    .update({
+      status: 'ERROR',
+    })
+    .eq('from_user_id', userId)
+    .eq('status', 'AMOUNT_PENDING')
+}

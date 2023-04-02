@@ -32,6 +32,7 @@ import {
   isUserAwaitingRemitentInput,
   makePaymentRequest,
   sendUsdtFromWallet,
+  updatePaymentRequestToError,
 } from '../../lib/crypto/transaction'
 
 const handler: VercelApiHandler = async (
@@ -120,6 +121,8 @@ const handler: VercelApiHandler = async (
 
                 return
               } catch (error) {
+                await updatePaymentRequestToError(user.id)
+
                 await sendMessageToPhoneNumber(
                   recipientPhone,
                   `No se pudo realizar el pago 😢, 
