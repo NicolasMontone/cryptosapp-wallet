@@ -36,6 +36,14 @@ import {
   updatePaymentRequestToError,
 } from '../../lib/crypto/transaction'
 
+async function sendMenuButtonsTo(phoneNumber: string) {
+  await sendSimpleButtonsMessage(phoneNumber, 'Qué querés hacer?', [
+    { title: 'Ingresar dinero', id: 'check_address' },
+    { title: 'Enviar dinero 💸', id: 'send_money' },
+    { title: 'Consultar saldo 🔎', id: 'check_balance' },
+  ])
+}
+
 const handler: VercelApiHandler = async (
   req: WhatsappNewMessageEventNotificationRequest,
   res: VercelResponse,
@@ -60,11 +68,7 @@ const handler: VercelApiHandler = async (
         },
       } = data
       const sendMenuButtons = async () => {
-        await sendSimpleButtonsMessage(recipientPhone, 'Qué querés hacer?', [
-          { title: 'Ingresar dinero', id: 'check_address' },
-          { title: 'Enviar dinero 💸', id: 'send_money' },
-          { title: 'Consultar saldo 🔎', id: 'check_balance' },
-        ])
+        sendMenuButtonsTo(recipientPhone)
       }
       try {
         if (typeOfMessage === 'text_message') {
@@ -135,6 +139,7 @@ const handler: VercelApiHandler = async (
                   recipientUser.phoneNumer,
                   `Recibiste ${amount} USDT de ${user.name} 🌟. Tu saldo actual es ${usdtBalance} USDT`,
                 )
+                sendMenuButtonsTo(recipientUser.phoneNumer)
 
                 const bscScanUrl = getBscScanUrlForAddress(address)
 
@@ -258,6 +263,8 @@ const handler: VercelApiHandler = async (
               await sendSimpleButtonsMessage(recipientPhone, walletAddress, [
                 { title: 'Qué es?', id: 'info_address' },
               ])
+
+              await sendMenuButtons()
 
               break
             }
