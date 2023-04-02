@@ -26,12 +26,12 @@ import {
   addRemitentToPaymentRequest,
   cancelPaymentRequest,
   confirmPaymentRequest,
+  getBscScanUrlForAddress,
   getRecipientAddressFromUncompletedPaymentRequest,
   isUserAwaitingAmountInput,
   isUserAwaitingRemitentInput,
   makePaymentRequest,
   sendUsdtFromWallet,
-  getBscScanUrlForAddress
 } from '../../lib/crypto/transaction'
 
 const handler: VercelApiHandler = async (
@@ -72,13 +72,13 @@ const handler: VercelApiHandler = async (
             if (text && (await isUserAwaitingRemitentInput(user.id))) {
               const remitent: PhoneNumber | Address = text.body
               try {
-                const remitentSuccess = await addRemitentToPaymentRequest({
+                const validatedRemitent = await addRemitentToPaymentRequest({
                   userId: user.id,
                   remitent,
                 })
                 await sendSimpleButtonsMessage(
                   recipientPhone,
-                  `Cuántos USDT deseas enviar a ${remitentSuccess}?`,
+                  `Cuántos USDT deseas enviar a ${validatedRemitent}?`,
                   [{ title: 'Cancelar transacción', id: 'cancel_send_money' }],
                 )
                 return
@@ -106,17 +106,18 @@ const handler: VercelApiHandler = async (
                 })
 
                 await confirmPaymentRequest({ userId: user.id, amount })
-                const [address, ] = await Promise.all([
-                  getAddressByPhoneNumber(recipientPhone),
-                  sendMessageToPhoneNumber(
-                    recipientPhone,
-                    'Pago exitoso! 🎉 Para mas informacion: 👇👇👇 ',
-                  ),
-                ])
-                const bscScanUrl = getBscScanUrlForAddress(address)
+
+                const address = await getAddressByPhoneNumber(recipientPhone)
+
                 await sendMessageToPhoneNumber(
                   recipientPhone,
-                  bscScanUrl)
+                  'Pago exitoso! 🎉 Para mas informacion: 👇👇👇 ',
+                )
+
+                const bscScanUrl = getBscScanUrlForAddress(address)
+
+                await sendMessageToPhoneNumber(recipientPhone, bscScanUrl)
+
                 return
               } catch (error) {
                 await sendMessageToPhoneNumber(
