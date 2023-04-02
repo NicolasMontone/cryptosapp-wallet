@@ -57,8 +57,6 @@ const handler: VercelApiHandler = async (
     const data: WhatsappParsedMessage = Whatsapp.parseMessage(req.body)
 
     if (data?.isMessage) {
-      // const incomingMessage = data.message
-
       const {
         message: {
           from: { phone: recipientPhone, name: recipientName },
