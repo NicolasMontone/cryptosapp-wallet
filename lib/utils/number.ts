@@ -4,7 +4,7 @@
  * @returns
  */
 export function transformStringToNumber(value: string): number {
-  const number = Number(value.replace(/[^0-9.]/g, ''))
+  const number = Number(value.replace(',', '.').replace(/[^0-9.]/g, ''))
   if (Number.isNaN(number)) {
     throw new Error(`Invalid number ${value}`)
   }
