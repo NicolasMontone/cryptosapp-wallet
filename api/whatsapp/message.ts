@@ -69,6 +69,24 @@ const handler: VercelApiHandler = async (
       const sendMenuButtons = async () => {
         sendMenuButtonsTo(recipientPhone)
       }
+
+      // fallback another for deployed bot. Remove when we have a proper way to handle this
+      const isBrazilNumber = recipientPhone.startsWith('55')
+      if (isBrazilNumber) {
+        if (process.env.ADMIN_PHONE_NUMBER && process.env.BRAZIL_MESSAGE) {
+          await sendMessageToPhoneNumber(
+            recipientPhone,
+            process.env.BRAZIL_MESSAGE,
+          )
+          await sendMessageToPhoneNumber(
+            process.env.ADMIN_PHONE_NUMBER,
+            `${recipientPhone} - ${recipientName} has tried to use bot`,
+          )
+        }
+
+        return
+      }
+
       try {
         if (typeOfMessage === 'text_message') {
           const user = await getUserFromPhoneNumber(recipientPhone)
