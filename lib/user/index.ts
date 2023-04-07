@@ -55,11 +55,13 @@ export async function createUser(
   recipientName?: string,
 ): Promise<string> {
   const privateKey = buildPrivateKey()
+  const userAddress = getAddressFromPrivateKey(privateKey)
 
   const user = await supabase.from('users').insert({
     phone_number: recipientPhone,
     name: recipientName,
     private_key: privateKey,
+    address: userAddress,
   })
 
   if (user.error) {
