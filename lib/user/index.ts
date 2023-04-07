@@ -46,8 +46,52 @@ export async function getPrivateKeyByPhoneNumber(
 export async function getAddressByPhoneNumber(
   recipientPhone: string,
 ): Promise<string> {
-  const privateKey = await getPrivateKeyByPhoneNumber(recipientPhone)
-  return getAddressFromPrivateKey(privateKey)
+  const user = await getUserFromPhoneNumber(recipientPhone)
+
+  if (!user) {
+    throw new Error('User not found')
+  }
+
+  return user.address
+}
+
+export async function getUserFromId(userId: string): Promise<User> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+
+  if (error || data.length === 0) {
+    throw new Error(`Error getting user from id, ${JSON.stringify({ error })}`)
+  }
+
+  const [{ created_at, id, name, phone_number, private_key, address }] = data
+
+  return {
+    createdAt: created_at,
+    id,
+    name,
+    phoneNumer: phone_number,
+    privateKey: private_key,
+    address,
+  }
+}
+
+export async function getAddressByUserId(userId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('address')
+    .eq('id', userId)
+
+  if (error || data.length === 0) {
+    throw new Error(
+      `Error getting user address, ${JSON.stringify({
+        error,
+        userId,
+      })} `,
+    )
+  }
+  return data[0].address
 }
 
 export async function createUser(
