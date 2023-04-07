@@ -8,6 +8,7 @@ export type User = {
   createdAt: string
   phoneNumer: string
   name: string
+  address: string
 }
 
 export async function isUserRegistered(
@@ -85,7 +86,7 @@ export async function getUserFromPhoneNumber(
     return null
   }
 
-  const [{ created_at, id, name, phone_number, private_key }] = users
+  const [{ created_at, id, name, phone_number, private_key, address }] = users
 
   return {
     createdAt: created_at,
@@ -93,5 +94,6 @@ export async function getUserFromPhoneNumber(
     name,
     phoneNumer: phone_number,
     privateKey: private_key,
+    address,
   }
 }
