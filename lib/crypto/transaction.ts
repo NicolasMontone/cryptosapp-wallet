@@ -3,7 +3,12 @@ import { ethers } from 'ethers'
 import { bscUsdtContractAddress } from '.'
 import usdtBEP20 from './abis/usdtBEP20.json'
 
-import { User, getAddressByPhoneNumber, getUserFromPhoneNumber } from 'lib/user'
+import {
+  User,
+  getAddressByPhoneNumber,
+  getUserFromId,
+  getUserFromPhoneNumber,
+} from 'lib/user'
 import { supabase } from '../../lib/supabase'
 
 const quickNodeUrl = process.env.QUICK_NODE_URL
@@ -23,7 +28,8 @@ type PaymentRequest = {
   id: string
   createdAt: string
   fromUserId: string
-  to: string
+  to: string // address
+  toUserId: string
   status: Status
   amount: number | null
 }
@@ -112,14 +118,17 @@ export async function getUserPaymentRequests(
     throw new Error('Error getting user payment requests')
   }
 
-  return data.map(({ id, created_at, from_user_id, to, status, amount }) => ({
-    id,
-    createdAt: created_at,
-    fromUserId: from_user_id,
-    to,
-    status,
-    amount,
-  }))
+  return data.map(
+    ({ id, created_at, from_user_id, status, amount, to_user_id, to }) => ({
+      id,
+      createdAt: created_at,
+      fromUserId: from_user_id,
+      toUserId: to_user_id,
+      status,
+      to,
+      amount,
+    }),
+  )
 }
 
 export async function isReceiverInputPending(userId: string) {
@@ -143,26 +152,10 @@ export async function getRecipientAddressFromUncompletedPaymentRequest(
     throw new Error('No pending payment requests found')
   }
 
-  const addressOrPhoneNumber = pendingPaymentRequest.to
-
-  const isAddress = ethers.isAddress(addressOrPhoneNumber)
-
-  if (isAddress) {
-    return addressOrPhoneNumber
-  }
-
-  const remitentUser = await getUserFromPhoneNumber(addressOrPhoneNumber)
-
-  if (!remitentUser) {
-    throw new Error('Invalid remitent')
-  }
-
-  const address = await getAddressByPhoneNumber(addressOrPhoneNumber)
-
-  return address
+  return pendingPaymentRequest.to
 }
 
-export async function getRecipientUserFromUncompletedPaymentRequest(
+export async function getReceiverUserFromUncompletedPaymentRequest(
   userId: string,
 ): Promise<User | null> {
   const paymentRequests = await getUserPaymentRequests(userId)
@@ -175,15 +168,13 @@ export async function getRecipientUserFromUncompletedPaymentRequest(
     throw new Error('No pending payment requests found')
   }
 
-  const addressOrPhoneNumber = pendingPaymentRequest.to
+  const { toUserId } = pendingPaymentRequest
 
-  const isAddress = ethers.isAddress(addressOrPhoneNumber)
-
-  if (isAddress) {
+  if (!toUserId) {
     return null
   }
 
-  return getUserFromPhoneNumber(addressOrPhoneNumber)
+  return getUserFromId(toUserId)
 }
 
 export async function isUserAwaitingAmountInput(userId: string) {
@@ -211,10 +202,15 @@ export async function addReceiverToPayment({
     )
   }
 
+  const receiverAddress = isAddress
+    ? receiver
+    : await getAddressByPhoneNumber(receiver)
+
   await supabase
     .from('payment_requests')
     .update({
-      to: receiver,
+      to: receiverAddress,
+      to_user_id: receiverUser?.id || null,
       status: 'AMOUNT_PENDING',
     })
     .eq('from_user_id', userId)

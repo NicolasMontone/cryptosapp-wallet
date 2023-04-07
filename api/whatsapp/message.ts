@@ -20,7 +20,6 @@ import {
 import { createUser } from '../../lib/user'
 
 import { getAccountBalances } from 'lib/crypto'
-import { transformStringToNumber } from '../../lib/utils/number'
 import {
   Address,
   PhoneNumber,
@@ -28,14 +27,15 @@ import {
   cancelPaymentRequest,
   confirmPaymentRequest,
   getBscScanUrlForAddress,
+  getReceiverUserFromUncompletedPaymentRequest,
   getRecipientAddressFromUncompletedPaymentRequest,
-  getRecipientUserFromUncompletedPaymentRequest,
   isReceiverInputPending,
   isUserAwaitingAmountInput,
   makePaymentRequest,
   sendUsdtFromWallet,
   updatePaymentRequestToError,
 } from '../../lib/crypto/transaction'
+import { transformStringToNumber } from '../../lib/utils/number'
 
 async function sendMenuButtonsTo(phoneNumber: string) {
   await sendSimpleButtonsMessage(phoneNumber, 'Qué querés hacer?', [
@@ -132,7 +132,7 @@ const handler: VercelApiHandler = async (
 
               try {
                 const receiverUser =
-                  await getRecipientUserFromUncompletedPaymentRequest(user.id)
+                  await getReceiverUserFromUncompletedPaymentRequest(user.id)
 
                 const senderPrivateKey = await getPrivateKeyByPhoneNumber(
                   recipientPhone,
